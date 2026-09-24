@@ -2,16 +2,15 @@ import { getTranslations } from "next-intl/server";
 import { MapPin, Phone, Mail, Clock, Navigation, Siren } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { siteConfig, buildDirectionsLink } from "@/lib/site-config";
-import { getSiteSettings } from "@/lib/controllers/siteSettings";
+import { getSiteSettingsOrDefault } from "@/lib/controllers/siteSettings";
+import { pickLocale } from "@/lib/cms-render";
 
 export async function ClinicInfo({ locale }: { locale: "ar" | "en" }) {
   const t = await getTranslations({ locale, namespace: "contact.info" });
   const clinic = siteConfig.clinics[0][locale];
 
-  const settingsResult = await getSiteSettings();
-  const contact = settingsResult.ok
-    ? settingsResult.data
-    : { phone_href: siteConfig.phoneHref, phone_display: siteConfig.phoneDisplay };
+  const contact = await getSiteSettingsOrDefault();
+  const hoursText = pickLocale(locale, contact.hours_text_en, contact.hours_text_ar);
 
   return (
     <GlassCard hover={false} className="p-6 sm:p-7 space-y-5">
@@ -47,8 +46,8 @@ export async function ClinicInfo({ locale }: { locale: "ar" | "en" }) {
           <Mail className="w-5 h-5 text-brand-gold shrink-0 mt-0.5" />
           <div>
             <div className="text-xs text-brand-700 font-semibold">{t("emailLabel")}</div>
-            <a href={`mailto:${siteConfig.email}`} className="font-bold text-brand-forest break-all">
-              {siteConfig.email}
+            <a href={`mailto:${contact.email}`} className="font-bold text-brand-forest break-all">
+              {contact.email}
             </a>
           </div>
         </div>
@@ -56,7 +55,7 @@ export async function ClinicInfo({ locale }: { locale: "ar" | "en" }) {
           <Clock className="w-5 h-5 text-brand-gold shrink-0 mt-0.5" />
           <div>
             <div className="text-xs text-brand-700 font-semibold">{t("hoursLabel")}</div>
-            <div className="font-bold text-brand-forest">{siteConfig.workingHours[locale]}</div>
+            <div className="font-bold text-brand-forest">{hoursText}</div>
           </div>
         </div>
 

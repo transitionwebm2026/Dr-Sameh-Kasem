@@ -2,13 +2,31 @@ import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
 import { MapPin, Clock, Phone, Mail } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { navLinks, siteConfig } from "@/lib/site-config";
+import { siteConfig } from "@/lib/site-config";
 
-export function Footer({ phoneDisplay }: { phoneDisplay: string }) {
+export type FooterContent = {
+  bio: string;
+  membership: string;
+  guideLinks: { href: string; label: string }[];
+  branches: { label: string; text: string }[];
+  hoursLabel: string;
+  hoursText: string;
+  copyright: string;
+  disclaimer: string;
+  email: string;
+};
+
+export function Footer({
+  phoneDisplay,
+  navLinks,
+  content,
+}: {
+  phoneDisplay: string;
+  navLinks: { href: string; label: string }[];
+  content: FooterContent;
+}) {
   const t = useTranslations("footer");
-  const nav = useTranslations("nav");
   const locale = useLocale() as "ar" | "en";
-  const year = new Date().getFullYear();
 
   return (
     <footer className="bg-brand-deep text-white border-t border-brand-gold/15 pt-16 pb-8">
@@ -26,8 +44,8 @@ export function Footer({ phoneDisplay }: { phoneDisplay: string }) {
                 <div className="text-xs text-brand-gold">{siteConfig.title[locale]}</div>
               </div>
             </div>
-            <p className="text-xs text-brand-100/75 leading-relaxed">{t("bio")}</p>
-            <div className="text-xs text-brand-goldLight font-medium">{t("membership")}</div>
+            <p className="text-xs text-brand-100/75 leading-relaxed">{content.bio}</p>
+            <div className="text-xs text-brand-goldLight font-medium">{content.membership}</div>
           </div>
 
           <div className="lg:col-span-3 space-y-3">
@@ -38,7 +56,7 @@ export function Footer({ phoneDisplay }: { phoneDisplay: string }) {
               {navLinks.map((link) => (
                 <li key={link.href}>
                   <Link href={link.href} className="hover:text-white transition-colors">
-                    {nav(link.key)}
+                    {link.label}
                   </Link>
                 </li>
               ))}
@@ -50,8 +68,8 @@ export function Footer({ phoneDisplay }: { phoneDisplay: string }) {
               {t("patientGuides")}
             </h4>
             <ul className="space-y-2 text-xs sm:text-sm text-brand-100/80">
-              {t.raw("guideLinks").map((item: { label: string; href: string }) => (
-                <li key={item.label}>
+              {content.guideLinks.map((item, index) => (
+                <li key={`${item.href}-${index}`}>
                   <Link href={item.href} className="hover:text-white transition-colors">
                     {item.label}
                   </Link>
@@ -65,28 +83,24 @@ export function Footer({ phoneDisplay }: { phoneDisplay: string }) {
               {t("branches")}
             </h4>
             <div className="space-y-3 text-xs text-brand-100/80">
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-brand-gold shrink-0 mt-0.5" strokeWidth={1.8} />
-                <p>
-                  <strong className="text-white">{t("branch1Label")}</strong> {t("branch1")}
-                </p>
-              </div>
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-brand-gold shrink-0 mt-0.5" strokeWidth={1.8} />
-                <p>
-                  <strong className="text-white">{t("branch2Label")}</strong> {t("branch2")}
-                </p>
-              </div>
+              {content.branches.map((branch, index) => (
+                <div key={index} className="flex items-start gap-2.5">
+                  <MapPin className="w-4 h-4 text-brand-gold shrink-0 mt-0.5" strokeWidth={1.8} />
+                  <p>
+                    <strong className="text-white">{branch.label}</strong> {branch.text}
+                  </p>
+                </div>
+              ))}
               <div className="flex items-start gap-2.5">
                 <Clock className="w-4 h-4 text-brand-gold shrink-0 mt-0.5" strokeWidth={1.8} />
                 <p>
-                  <strong className="text-white">{t("hoursLabel")}</strong> {t("hours")}
+                  <strong className="text-white">{content.hoursLabel}</strong> {content.hoursText}
                 </p>
               </div>
               <div className="flex items-start gap-2.5">
                 <Mail className="w-4 h-4 text-brand-gold shrink-0 mt-0.5" strokeWidth={1.8} />
                 <p>
-                  <strong className="text-white">{t("emailLabel")}</strong> {siteConfig.email}
+                  <strong className="text-white">{t("emailLabel")}</strong> {content.email}
                 </p>
               </div>
               <div className="flex items-start gap-2.5">
@@ -124,7 +138,7 @@ export function Footer({ phoneDisplay }: { phoneDisplay: string }) {
         </div>
 
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-brand-100/60">
-          <p>{t("copyright", { year })}</p>
+          <p>{content.copyright}</p>
           <div className="flex items-center gap-6">
             <Link href="/privacy-policy" className="hover:text-white transition-colors">
               {t("privacy")}
@@ -138,7 +152,7 @@ export function Footer({ phoneDisplay }: { phoneDisplay: string }) {
           </div>
         </div>
         <p className="pt-6 text-[11px] text-brand-100/40 leading-relaxed max-w-3xl">
-          {t("disclaimer")}
+          {content.disclaimer}
         </p>
       </div>
     </footer>

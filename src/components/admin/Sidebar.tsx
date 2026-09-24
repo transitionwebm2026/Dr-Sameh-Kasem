@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, FileText, Settings } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, PanelsTopLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Page } from "@/lib/cms-types";
 
@@ -70,6 +70,19 @@ export function Sidebar({ pages }: { pages: Page[] }) {
       >
         <Settings className="h-4 w-4 shrink-0" />
         Contact & Social
+      </Link>
+      <Link
+        href="/admin/dashboard/settings/navbar-footer"
+        prefetch={false}
+        className={cn(
+          "flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors",
+          pathname === "/admin/dashboard/settings/navbar-footer"
+            ? "bg-brand-forest text-white"
+            : "text-brand-800 hover:bg-brand-100/60"
+        )}
+      >
+        <PanelsTopLeft className="h-4 w-4 shrink-0" />
+        Navbar & Footer
       </Link>
     </aside>
   );

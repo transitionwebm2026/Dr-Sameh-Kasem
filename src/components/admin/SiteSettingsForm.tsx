@@ -7,6 +7,7 @@ import { updateSiteSettings, type SiteSettings } from "@/lib/controllers/siteSet
 
 export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }) {
   const [phoneDisplay, setPhoneDisplay] = useState(settings?.phone_display ?? "");
+  const [email, setEmail] = useState(settings?.email ?? "");
   const [facebookUrl, setFacebookUrl] = useState(settings?.facebook_url ?? "");
   const [instagramUrl, setInstagramUrl] = useState(settings?.instagram_url ?? "");
   const [tiktokUrl, setTiktokUrl] = useState(settings?.tiktok_url ?? "");
@@ -20,6 +21,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
     setError(null);
     const result = await updateSiteSettings({
       phone_display: phoneDisplay,
+      email,
       facebook_url: facebookUrl || null,
       instagram_url: instagramUrl || null,
       tiktok_url: tiktokUrl || null,
@@ -55,6 +57,18 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
           country code is added automatically for the call/WhatsApp links.
         </p>
       </div>
+
+      <label className="block space-y-1.5">
+        <span className="text-xs font-semibold uppercase tracking-wide text-brand-700">Email</span>
+        <input
+          dir="ltr"
+          type="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="contact@drsamehqassem.com"
+          className="w-full rounded-xl border border-brand-900/15 bg-white/70 px-3.5 py-2.5 text-sm text-brand-forest outline-none focus:border-brand-gold"
+        />
+      </label>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <label className="block space-y-1.5">

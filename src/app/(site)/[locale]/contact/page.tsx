@@ -7,8 +7,7 @@ import { listSectionsByPageId } from "@/lib/controllers/sections";
 import { listContentItemsBySection } from "@/lib/controllers/contentItems";
 import { pickLocale, sectionHeading, finalCtaProps } from "@/lib/cms-render";
 import type { ContentItem, PageHero, Section } from "@/lib/cms-types";
-import { siteConfig } from "@/lib/site-config";
-import { getSiteSettings } from "@/lib/controllers/siteSettings";
+import { getSiteSettingsOrDefault } from "@/lib/controllers/siteSettings";
 import { GlobalHeroSection } from "@/components/layout/GlobalHeroSection";
 import { BookingForm } from "@/components/forms/BookingForm";
 import { ClinicInfo } from "@/components/sections/contact/ClinicInfo";
@@ -85,8 +84,8 @@ export default async function ContactPage({
     a: pickLocale(locale, item.text_en, item.text_ar),
   }));
 
-  const settingsResult = await getSiteSettings();
-  const whatsappNumber = settingsResult.ok ? settingsResult.data.whatsapp_number : siteConfig.whatsappNumber;
+  const contact = await getSiteSettingsOrDefault();
+  const whatsappNumber = contact.whatsapp_number;
 
   return (
     <>

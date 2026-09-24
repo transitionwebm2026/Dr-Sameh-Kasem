@@ -7,15 +7,19 @@ import { Menu, Calendar } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { LanguageSwitch } from "./LanguageSwitch";
 import { MobileDrawer } from "./MobileDrawer";
-import { navLinks, siteConfig } from "@/lib/site-config";
+import { siteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 
 export function Navbar({
   phoneHref,
   phoneDisplay,
+  navLinks,
+  bookNowLabel,
 }: {
   phoneHref: string;
   phoneDisplay: string;
+  navLinks: { href: string; label: string }[];
+  bookNowLabel: string;
 }) {
   const t = useTranslations("nav");
   const locale = useLocale() as "ar" | "en";
@@ -57,7 +61,7 @@ export function Navbar({
                         : "hover:text-brand-gold hover:bg-brand-100/40"
                     )}
                   >
-                    {t(link.key)}
+                    {link.label}
                   </Link>
                 );
               })}
@@ -72,7 +76,7 @@ export function Navbar({
                 className="hidden lg:inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-brand-forest text-white hover:bg-brand-900 transition-all duration-300 shadow-md hover:shadow-emerald-glow hover:-translate-y-0.5 text-sm font-bold border border-emerald-700/30"
               >
                 <Calendar className="w-4 h-4 text-brand-gold" />
-                <span>{t("bookNow")}</span>
+                <span>{bookNowLabel}</span>
               </Link>
               <button
                 aria-label={t("menu")}
@@ -87,7 +91,14 @@ export function Navbar({
         </div>
       </header>
 
-      <MobileDrawer open={open} onClose={closeDrawer} phoneHref={phoneHref} phoneDisplay={phoneDisplay} />
+      <MobileDrawer
+        open={open}
+        onClose={closeDrawer}
+        phoneHref={phoneHref}
+        phoneDisplay={phoneDisplay}
+        navLinks={navLinks}
+        bookNowLabel={bookNowLabel}
+      />
     </>
   );
 }

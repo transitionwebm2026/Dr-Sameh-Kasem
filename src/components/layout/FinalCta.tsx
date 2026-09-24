@@ -1,7 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Phone } from "lucide-react";
-import { siteConfig } from "@/lib/site-config";
-import { getSiteSettings } from "@/lib/controllers/siteSettings";
+import { getSiteSettingsOrDefault } from "@/lib/controllers/siteSettings";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { WhatsAppIcon } from "@/components/ui/SocialIcons";
 
@@ -23,10 +22,7 @@ export async function FinalCta({
   const common = await getTranslations({ locale, namespace: "common" });
   const hasCustomTitle = title !== undefined;
 
-  const settingsResult = await getSiteSettings();
-  const contact = settingsResult.ok
-    ? settingsResult.data
-    : { phone_href: siteConfig.phoneHref, whatsapp_number: siteConfig.whatsappNumber };
+  const contact = await getSiteSettingsOrDefault();
 
   return (
     <section className="py-24 bg-brand-forest text-white relative overflow-hidden">

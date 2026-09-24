@@ -48,7 +48,7 @@ export function DoctorMessage({
                   className="object-cover"
                 />
               </div>
-              <div className="absolute -bottom-5 start-1/2 -translate-x-1/2 w-[88%] max-w-xs">
+              <div className="absolute -bottom-5 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 w-[88%] max-w-xs">
                 <div className="liquid-glass-dark rounded-2xl sm:rounded-full px-4 sm:px-5 py-2.5 text-center">
                   <div className="text-xs font-bold text-brand-gold">{qualificationShort}</div>
                   <div className="text-[10px] text-white/90">{qualificationFull}</div>

@@ -33,16 +33,6 @@ export const siteConfig = {
   },
 } as const;
 
-export const navLinks = [
-  { href: "/", key: "home" },
-  { href: "/about", key: "about" },
-  { href: "/services", key: "services" },
-  { href: "/reviews", key: "reviews" },
-  { href: "/videos", key: "videos" },
-  { href: "/articles", key: "articles" },
-  { href: "/contact", key: "contact" },
-] as const;
-
 export function buildWhatsAppLink(message: string, whatsappNumber: string = siteConfig.whatsappNumber) {
   const encoded = encodeURIComponent(message);
   return `https://wa.me/${whatsappNumber}?text=${encoded}`;

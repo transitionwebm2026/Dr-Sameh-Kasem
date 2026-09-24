@@ -5,7 +5,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { cairo, tajawal, playfair, inter } from "@/lib/fonts";
 import { siteConfig } from "@/lib/site-config";
-import { getSiteSettings } from "@/lib/controllers/siteSettings";
+import { getSiteSettingsOrDefault } from "@/lib/controllers/siteSettings";
+import { pickLocale } from "@/lib/cms-render";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { FloatingActions } from "@/components/layout/FloatingActions";
@@ -61,14 +62,32 @@ export default async function LocaleLayout({
 
   const dir = locale === "ar" ? "rtl" : "ltr";
 
-  const settingsResult = await getSiteSettings();
-  const contact = settingsResult.ok
-    ? settingsResult.data
-    : {
-        phone_display: siteConfig.phoneDisplay,
-        phone_href: siteConfig.phoneHref,
-        whatsapp_number: siteConfig.whatsappNumber,
-      };
+  const contact = await getSiteSettingsOrDefault();
+  const navLinks = contact.nav_links.map((link) => ({
+    href: link.href,
+    label: pickLocale(locale, link.label_en, link.label_ar),
+  }));
+  const bookNowLabel = pickLocale(locale, contact.book_now_label_en, contact.book_now_label_ar);
+  const footerContent = {
+    bio: pickLocale(locale, contact.footer_bio_en, contact.footer_bio_ar),
+    membership: pickLocale(locale, contact.footer_membership_en, contact.footer_membership_ar),
+    guideLinks: contact.guide_links.map((link) => ({
+      href: link.href,
+      label: pickLocale(locale, link.label_en, link.label_ar),
+    })),
+    branches: contact.branches.map((branch) => ({
+      label: pickLocale(locale, branch.label_en, branch.label_ar),
+      text: pickLocale(locale, branch.text_en, branch.text_ar),
+    })),
+    hoursLabel: pickLocale(locale, contact.hours_label_en, contact.hours_label_ar),
+    hoursText: pickLocale(locale, contact.hours_text_en, contact.hours_text_ar),
+    copyright: pickLocale(locale, contact.copyright_en, contact.copyright_ar).replace(
+      "{year}",
+      String(new Date().getFullYear())
+    ),
+    disclaimer: pickLocale(locale, contact.disclaimer_en, contact.disclaimer_ar),
+    email: contact.email,
+  };
 
   return (
     <html
@@ -83,9 +102,14 @@ export default async function LocaleLayout({
       >
         <NextIntlClientProvider>
           <VideoModalProvider>
-            <Navbar phoneHref={contact.phone_href} phoneDisplay={contact.phone_display} />
+            <Navbar
+              phoneHref={contact.phone_href}
+              phoneDisplay={contact.phone_display}
+              navLinks={navLinks}
+              bookNowLabel={bookNowLabel}
+            />
             <main>{children}</main>
-            <Footer phoneDisplay={contact.phone_display} />
+            <Footer phoneDisplay={contact.phone_display} navLinks={navLinks} content={footerContent} />
             <FloatingActions phoneHref={contact.phone_href} whatsappNumber={contact.whatsapp_number} />
           </VideoModalProvider>
         </NextIntlClientProvider>

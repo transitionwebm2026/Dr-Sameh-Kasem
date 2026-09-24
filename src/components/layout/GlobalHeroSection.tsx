@@ -3,8 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { DynamicIcon } from "@/lib/icons";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { InstagramIcon, FacebookIcon, TikTokIcon } from "@/components/ui/SocialIcons";
-import { siteConfig } from "@/lib/site-config";
-import { getSiteSettings } from "@/lib/controllers/siteSettings";
+import { getSiteSettingsOrDefault } from "@/lib/controllers/siteSettings";
 import { cn } from "@/lib/utils";
 
 type Cta = { label: string; href: string };
@@ -69,16 +68,7 @@ export async function GlobalHeroSection({
 }) {
   // Admin-editable in /admin/dashboard/settings; falls back to the static
   // defaults if the settings row can't be reached so the hero never breaks.
-  const settingsResult = await getSiteSettings();
-  const contact = settingsResult.ok
-    ? settingsResult.data
-    : {
-        phone_display: siteConfig.phoneDisplay,
-        phone_href: siteConfig.phoneHref,
-        facebook_url: siteConfig.social.facebook as string | null,
-        instagram_url: siteConfig.social.instagram as string | null,
-        tiktok_url: siteConfig.social.tiktok as string | null,
-      };
+  const contact = await getSiteSettingsOrDefault();
 
   return (
     <section

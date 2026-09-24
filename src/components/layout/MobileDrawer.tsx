@@ -6,7 +6,6 @@ import { useTranslations, useLocale } from "next-intl";
 import { X, Calendar, ArrowRight } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { LanguageSwitch } from "./LanguageSwitch";
-import { navLinks } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 
 export function MobileDrawer({
@@ -14,11 +13,15 @@ export function MobileDrawer({
   onClose,
   phoneHref,
   phoneDisplay,
+  navLinks,
+  bookNowLabel,
 }: {
   open: boolean;
   onClose: () => void;
   phoneHref: string;
   phoneDisplay: string;
+  navLinks: { href: string; label: string }[];
+  bookNowLabel: string;
 }) {
   const t = useTranslations("nav");
   const locale = useLocale() as "ar" | "en";
@@ -101,7 +104,7 @@ export function MobileDrawer({
                             : "text-white hover:bg-white/5 hover:text-brand-goldLight"
                         )}
                       >
-                        <span>{t(link.key)}</span>
+                        <span>{link.label}</span>
                         <ArrowRight className="w-4 h-4 rtl:rotate-180 opacity-60" />
                       </Link>
                     </motion.div>
@@ -123,7 +126,7 @@ export function MobileDrawer({
                   className="w-full flex items-center justify-center gap-2 px-5 py-3.5 rounded-full bg-brand-gold text-brand-deep font-extrabold text-sm shadow-xl hover:bg-white transition-all duration-300"
                 >
                   <Calendar className="w-4 h-4" />
-                  <span>{t("bookNowShort")}</span>
+                  <span>{bookNowLabel}</span>
                 </Link>
               </div>
             </div>
