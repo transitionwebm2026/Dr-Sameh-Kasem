@@ -14,10 +14,12 @@ import type { ContentItem, ContentItemInput } from "@/lib/cms-types";
 
 export function ContentItemsEditor({
   pageSlug,
+  sectionKey,
   sectionId,
   initialItems,
 }: {
   pageSlug: string;
+  sectionKey: string;
   sectionId: string;
   initialItems: ContentItem[];
 }) {
@@ -178,6 +180,8 @@ export function ContentItemsEditor({
           <div key={item.id} className="space-y-2">
             {editingId === item.id ? (
               <ContentItemForm
+                pageSlug={pageSlug}
+                sectionKey={sectionKey}
                 item={item}
                 onCancel={() => setEditingId(null)}
                 onSubmit={(input) => handleUpdate(item.id, input)}
@@ -192,6 +196,8 @@ export function ContentItemsEditor({
                   editingId === child.id ? (
                     <ContentItemForm
                       key={child.id}
+                      pageSlug={pageSlug}
+                      sectionKey={sectionKey}
                       item={child}
                       onCancel={() => setEditingId(null)}
                       onSubmit={(input) => handleUpdate(child.id, input)}
@@ -203,6 +209,8 @@ export function ContentItemsEditor({
 
                 {addingChildFor === item.id ? (
                   <ContentItemForm
+                    pageSlug={pageSlug}
+                    sectionKey={sectionKey}
                     item={null}
                     onCancel={() => setAddingChildFor(null)}
                     onSubmit={(input) => handleCreate(item.id, input)}
@@ -231,7 +239,13 @@ export function ContentItemsEditor({
       })}
 
       {adding ? (
-        <ContentItemForm item={null} onCancel={() => setAdding(false)} onSubmit={(input) => handleCreate(null, input)} />
+        <ContentItemForm
+          pageSlug={pageSlug}
+          sectionKey={sectionKey}
+          item={null}
+          onCancel={() => setAdding(false)}
+          onSubmit={(input) => handleCreate(null, input)}
+        />
       ) : (
         <button
           type="button"

@@ -227,7 +227,12 @@ export function SectionEditorForm({
         section ? (
           <div>
             <h3 className="mb-3 text-sm font-bold text-brand-forest">Items in this section</h3>
-            <ContentItemsEditor pageSlug={pageSlug} sectionId={section.id} initialItems={items} />
+            <ContentItemsEditor
+              pageSlug={pageSlug}
+              sectionKey={sectionKey}
+              sectionId={section.id}
+              initialItems={items}
+            />
           </div>
         ) : (
           <p className="text-xs text-brand-700/60">

@@ -5,11 +5,13 @@ import { Loader2 } from "lucide-react";
 import { MediaUploader } from "./MediaUploader";
 import { VideoUploader } from "./VideoUploader";
 import { KeyValueEditor } from "./KeyValueEditor";
+import { isIconImage } from "@/lib/icons";
 import type { ContentItem, ContentItemInput } from "@/lib/cms-types";
 
 type Draft = {
   item_type: string;
   image: string;
+  originalIcon: string;
   videoUrl: string;
   title_en: string;
   title_ar: string;
@@ -23,9 +25,16 @@ type Draft = {
 function toDraft(item: ContentItem | null): Draft {
   const meta = item?.meta ?? {};
   const { video_url: videoUrlFromMeta, ...restMeta } = meta as { video_url?: unknown };
+  // `icon` doubles as a legacy built-in icon key (e.g. "spine") for items
+  // that predate image uploads — only treat it as an image if it actually
+  // looks like one, otherwise the uploader would show a broken preview for
+  // a value like "spine" instead of a clean empty slot. The raw key is kept
+  // in `originalIcon` so saving without touching the image doesn't wipe it.
+  const legacyIcon = item?.icon && isIconImage(item.icon) ? item.icon : "";
   return {
     item_type: item?.item_type ?? "card",
-    image: item?.image_url || item?.icon || "",
+    image: item?.image_url || legacyIcon,
+    originalIcon: item?.icon ?? "",
     videoUrl: typeof videoUrlFromMeta === "string" ? videoUrlFromMeta : "",
     title_en: item?.title_en ?? "",
     title_ar: item?.title_ar ?? "",
@@ -38,10 +47,14 @@ function toDraft(item: ContentItem | null): Draft {
 }
 
 export function ContentItemForm({
+  pageSlug,
+  sectionKey,
   item,
   onSubmit,
   onCancel,
 }: {
+  pageSlug: string;
+  sectionKey: string;
   item: ContentItem | null;
   onSubmit: (input: ContentItemInput) => Promise<void>;
   onCancel: () => void;
@@ -49,6 +62,11 @@ export function ContentItemForm({
   const [draft, setDraft] = useState<Draft>(() => toDraft(item));
   const [saving, setSaving] = useState(false);
   const isVideo = draft.item_type === "video";
+  // These specialty cards only ever show a title and an image — the generic
+  // text/link/order/video/extra-fields controls don't apply and just made
+  // the form confusing (and the image preview looked broken for the four
+  // items still using a legacy built-in icon key instead of an upload).
+  const isSimpleCard = pageSlug === "home" && sectionKey === "surgeriesSection";
 
   function set<K extends keyof Draft>(key: K, value: Draft[K]) {
     setDraft((prev) => ({ ...prev, [key]: value }));
@@ -60,13 +78,19 @@ export function ContentItemForm({
       meta = { ...meta, video_url: draft.videoUrl.trim() };
     }
 
+    // Keep a legacy built-in icon key (e.g. "spine") intact when the admin
+    // edits the title without touching the image — otherwise saving would
+    // silently null it out and drop the card's illustration.
+    const resolvedImage =
+      draft.image || (draft.originalIcon && !isIconImage(draft.originalIcon) ? draft.originalIcon : null);
+
     setSaving(true);
     try {
       await onSubmit({
         parent_id: item?.parent_id ?? null,
         item_type: draft.item_type || "card",
-        icon: draft.image || null,
-        image_url: draft.image || null,
+        icon: resolvedImage,
+        image_url: resolvedImage,
         title_en: draft.title_en || null,
         title_ar: draft.title_ar || null,
         subtitle_en: null,
@@ -84,14 +108,16 @@ export function ContentItemForm({
 
   return (
     <div className="space-y-4 rounded-2xl border border-brand-gold/30 bg-white/70 p-4">
-      <Field label="Item type" value={draft.item_type} onChange={(v) => set("item_type", v)} placeholder="card, bullet, stat, faq…" />
+      {!isSimpleCard ? (
+        <Field label="Item type" value={draft.item_type} onChange={(v) => set("item_type", v)} placeholder="card, bullet, stat, faq…" />
+      ) : null}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Field label="Title (English)" value={draft.title_en} onChange={(v) => set("title_en", v)} />
         <Field label="Title (Arabic)" value={draft.title_ar} onChange={(v) => set("title_ar", v)} dir="rtl" />
       </div>
 
-      {!isVideo ? (
+      {!isVideo && !isSimpleCard ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <TextAreaField label="Text (English)" value={draft.text_en} onChange={(v) => set("text_en", v)} />
           <TextAreaField label="Text (Arabic)" value={draft.text_ar} onChange={(v) => set("text_ar", v)} dir="rtl" />
@@ -99,42 +125,46 @@ export function ContentItemForm({
       ) : null}
 
       <MediaUploader
-        label={isVideo ? "Cover image (optional — shown before the video plays)" : "Image (optional)"}
+        label={isVideo ? "Cover image (optional — shown before the video plays)" : "Image"}
         value={draft.image || null}
         onChange={(url) => set("image", url)}
       />
 
-      {isVideo ? (
-        <VideoUploader
-          label="Video file (upload from your device)"
-          value={draft.videoUrl || null}
-          onChange={(url) => set("videoUrl", url)}
-        />
+      {!isSimpleCard ? (
+        <>
+          {isVideo ? (
+            <VideoUploader
+              label="Video file (upload from your device)"
+              value={draft.videoUrl || null}
+              onChange={(url) => set("videoUrl", url)}
+            />
+          ) : null}
+
+          <Field
+            label={isVideo ? "Or paste a Video URL instead (YouTube, Vimeo, or a direct link)" : "Video URL (for video items — YouTube, Vimeo, or a direct .mp4 link)"}
+            value={draft.videoUrl}
+            onChange={(v) => set("videoUrl", v)}
+            placeholder="https://youtube.com/watch?v=..."
+            dir="ltr"
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Field label="Link (href)" value={draft.href} onChange={(v) => set("href", v)} placeholder="/contact" />
+            <Field
+              label="Order"
+              type="number"
+              value={String(draft.order_index)}
+              onChange={(v) => set("order_index", Number(v) || 0)}
+            />
+          </div>
+
+          <KeyValueEditor
+            label="Extra fields (e.g. value/suffix for a stat, slug for an article)"
+            meta={draft.restMeta}
+            onChange={(meta) => set("restMeta", meta)}
+          />
+        </>
       ) : null}
-
-      <Field
-        label={isVideo ? "Or paste a Video URL instead (YouTube, Vimeo, or a direct link)" : "Video URL (for video items — YouTube, Vimeo, or a direct .mp4 link)"}
-        value={draft.videoUrl}
-        onChange={(v) => set("videoUrl", v)}
-        placeholder="https://youtube.com/watch?v=..."
-        dir="ltr"
-      />
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <Field label="Link (href)" value={draft.href} onChange={(v) => set("href", v)} placeholder="/contact" />
-        <Field
-          label="Order"
-          type="number"
-          value={String(draft.order_index)}
-          onChange={(v) => set("order_index", Number(v) || 0)}
-        />
-      </div>
-
-      <KeyValueEditor
-        label="Extra fields (e.g. value/suffix for a stat, slug for an article)"
-        meta={draft.restMeta}
-        onChange={(meta) => set("restMeta", meta)}
-      />
 
       <div className="flex items-center gap-3">
         <button
