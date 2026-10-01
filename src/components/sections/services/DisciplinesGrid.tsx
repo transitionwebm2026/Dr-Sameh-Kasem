@@ -22,9 +22,12 @@ export function DisciplinesGrid({
       <AmbientGlow />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <SectionHeading eyebrow={eyebrow} title={title} />
-        <StaggerGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <StaggerGroup className="flex flex-wrap justify-center gap-8">
           {items.map((item) => (
-            <StaggerItem key={item.title}>
+            <StaggerItem
+              key={item.title}
+              className="w-full sm:w-[calc((100%_-_2rem)/2)] lg:w-[calc((100%_-_4rem)/3)]"
+            >
               <GlassCard className="overflow-hidden h-full flex flex-col group">
                 <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-brand-forest/5">
                   <Image

@@ -17,7 +17,7 @@ export function ConditionDetailsGrid({
   title: string;
   items: Discipline[];
 }) {
-  const groups = items.filter((item) => item.icon !== "microscope");
+  const groups = items.filter((item) => item.conditions.length > 0);
 
   return (
     <section className="py-24 bg-brand-ivory relative overflow-hidden">
@@ -31,9 +31,12 @@ export function ConditionDetailsGrid({
                 <span className="h-6 w-1.5 shrink-0 rounded-full bg-brand-gold" aria-hidden="true" />
                 {group.title}
               </h3>
-              <StaggerGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <StaggerGroup className="flex flex-wrap justify-center gap-6">
                 {group.conditions.map((condition) => (
-                  <StaggerItem key={condition.title}>
+                  <StaggerItem
+                    key={condition.title}
+                    className="w-full sm:w-[calc((100%_-_1.5rem)/2)] lg:w-[calc((100%_-_3rem)/3)]"
+                  >
                     <GlassCard className="overflow-hidden h-full flex flex-col group">
                       <div className="relative h-36 sm:h-40 w-full overflow-hidden bg-brand-forest/5">
                         <Image
