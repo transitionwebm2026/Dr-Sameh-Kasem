@@ -9,8 +9,6 @@ import { StaggerGroup, StaggerItem } from "@/components/motion/Stagger";
 
 type Review = {
   name: string;
-  location: string;
-  procedure: string;
   category: string;
   rating: number;
   text: string;
@@ -62,9 +60,6 @@ export function ReviewsGrid({
                   </div>
                   <div>
                     <h3 className="text-sm font-bold text-brand-forest">{review.name}</h3>
-                    <span className="text-xs text-brand-700">
-                      {review.location} • {review.procedure}
-                    </span>
                   </div>
                 </div>
               </GlassCard>

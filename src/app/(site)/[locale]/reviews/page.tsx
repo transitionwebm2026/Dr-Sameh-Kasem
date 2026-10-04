@@ -78,8 +78,6 @@ export default async function ReviewsPage({
   const gridHeading = sectionHeading(locale, sectionByKey("gridSection"));
   const reviewItems = itemsFor("gridSection").map((item) => ({
     name: pickLocale(locale, item.title_en, item.title_ar),
-    location: metaString(item.meta, isAr ? "location_ar" : "location_en"),
-    procedure: metaString(item.meta, isAr ? "procedure_ar" : "procedure_en"),
     category: metaString(item.meta, isAr ? "category_ar" : "category_en"),
     rating: typeof item.meta.rating === "number" ? item.meta.rating : 5,
     text: pickLocale(locale, item.text_en, item.text_ar),

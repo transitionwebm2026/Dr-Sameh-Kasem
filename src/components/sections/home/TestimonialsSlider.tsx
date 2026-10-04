@@ -12,8 +12,6 @@ import { FadeIn } from "@/components/motion/FadeIn";
 
 type Review = {
   name: string;
-  location?: string;
-  procedure?: string;
   rating: number;
   text: string;
 };
@@ -90,9 +88,6 @@ export function TestimonialsSlider({
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-brand-forest">{review.name}</h3>
-                      <span className="text-xs text-brand-700">
-                        {[review.location, review.procedure].filter(Boolean).join(" • ")}
-                      </span>
                     </div>
                   </div>
                 </GlassCard>

@@ -110,8 +110,6 @@ export default async function HomePage({
   const testimonialsItems = itemsFor("testimonialsSection").map((item) => ({
     name: pickLocale(locale, item.title_en, item.title_ar),
     text: pickLocale(locale, item.text_en, item.text_ar),
-    location: metaString(item.meta, isAr ? "location_ar" : "location_en"),
-    procedure: metaString(item.meta, isAr ? "procedure_ar" : "procedure_en"),
     rating: typeof item.meta.rating === "number" ? item.meta.rating : 5,
   }));
 
