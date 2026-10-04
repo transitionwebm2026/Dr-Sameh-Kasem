@@ -74,6 +74,19 @@ body {
   color: #ffffff;
 }
 
+/* Fades a built-in illustration's own rectangular background out at the
+   edges, so it reads as floating directly on the card instead of sitting
+   inside a visibly boxed photo. Only meant for the stock anatomy renders
+   (brain.png, spine.png, …) — a real admin-uploaded photo keeps its edges. */
+.card-art-fade {
+  mask-image: radial-gradient(ellipse 72% 72% at center, #000 50%, transparent 88%);
+  -webkit-mask-image: radial-gradient(ellipse 72% 72% at center, #000 50%, transparent 88%);
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-size: 100% 100%;
+  -webkit-mask-size: 100% 100%;
+}
+
 /* ---------- 3D Liquid Glassmorphism Core Primitives ---------- */
 .liquid-glass {
   /* Layered background: a diagonal glossy shine sits on top of the
