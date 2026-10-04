@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Calendar, ArrowRight, Phone } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { DynamicIcon } from "@/lib/icons";
@@ -78,14 +79,20 @@ export async function GlobalHeroSection({
         reserveOverlapSpace ? "lg:pb-24" : ""
       )}
     >
-      {/* Doctor portrait as a full-bleed background layer, edge to edge */}
+      {/* Doctor portrait as a full-bleed background layer, edge to edge.
+          A real <Image priority> (not a CSS background) so Next.js can
+          serve a viewport-sized, modern-format file and the browser's
+          preload scanner can discover it immediately — this is the hero's
+          LCP element on every page that uses it. */}
       {showDoctor && doctorImage ? (
         <>
-          <div
-            role="img"
-            aria-label={doctorImageAlt ?? ""}
-            className="absolute inset-0 bg-cover bg-[position:88%_top] rtl:bg-[position:12%_top]"
-            style={{ backgroundImage: `url(${doctorImage})` }}
+          <Image
+            src={doctorImage}
+            alt={doctorImageAlt ?? ""}
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-[88%_top] rtl:object-[12%_top]"
           />
           <div
             className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand-ivory/95 via-brand-ivory/30 to-transparent rtl:bg-gradient-to-l"
