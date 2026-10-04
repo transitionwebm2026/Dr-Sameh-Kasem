@@ -1,9 +1,12 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag, unstable_cache } from "next/cache";
 import { requireAdmin } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { supabase as publicSupabase } from "@/lib/supabase/client";
 import { runAction, type ActionResult } from "./result";
+
+const SITE_SETTINGS_TAG = "site-settings";
 
 export type NavLink = { href: string; label_en: string; label_ar: string };
 export type Branch = { label_en: string; label_ar: string; text_en: string; text_ar: string };
@@ -149,14 +152,27 @@ function normalizePhone(rawDisplay: string, defaultCountryCode = "20") {
   return { phone_href: `tel:+${international}`, whatsapp_number: international };
 }
 
-export async function getSiteSettings(): Promise<ActionResult<SiteSettings>> {
-  return runAction(async () => {
-    const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase.from("site_settings").select("*").eq("id", 1).single();
-
+// site_settings is public-readable (RLS allows anon select), so this uses
+// the plain anon-key client instead of the cookie-bound server client — the
+// cookie-bound one calls next/headers' cookies(), which is a dynamic API
+// that (a) can't be used inside unstable_cache and (b) forces every page
+// that touches it into fully dynamic, uncached rendering. Since this read
+// happens in the root layout on literally every page, caching it here is
+// what keeps page-to-page navigation fast; an admin save busts the cache
+// via updateTag below.
+const fetchSiteSettingsRow = unstable_cache(
+  async () => {
+    if (!publicSupabase) throw new Error("Supabase is not configured.");
+    const { data, error } = await publicSupabase.from("site_settings").select("*").eq("id", 1).single();
     if (error) throw error;
     return data as SiteSettings;
-  });
+  },
+  ["site-settings-row"],
+  { tags: [SITE_SETTINGS_TAG] }
+);
+
+export async function getSiteSettings(): Promise<ActionResult<SiteSettings>> {
+  return runAction(fetchSiteSettingsRow);
 }
 
 function mergeWithDefaults(row: SiteSettings | null): SiteSettings {
@@ -215,7 +231,10 @@ export async function updateSiteSettings(input: ContactSettingsInput): Promise<A
 
     // Phone/social links show up on every page (footer, floating actions,
     // hero booking card, contact page) — revalidate the whole site rather
-    // than a single route.
+    // than a single route. updateTag busts the cached read immediately
+    // (read-your-own-writes from this Server Action); revalidatePath also
+    // clears the Router/Full Route Cache for these paths.
+    updateTag(SITE_SETTINGS_TAG);
     revalidatePath("/", "layout");
     revalidatePath("/admin/dashboard/settings");
 
@@ -238,6 +257,7 @@ export async function updateNavbarFooterContent(input: NavbarFooterInput): Promi
     if (error) throw error;
 
     // Nav links and footer content render in the layout on every page.
+    updateTag(SITE_SETTINGS_TAG);
     revalidatePath("/", "layout");
     revalidatePath("/admin/dashboard/settings/navbar-footer");
 
