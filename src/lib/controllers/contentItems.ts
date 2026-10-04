@@ -1,25 +1,29 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { requireAdmin } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { supabase as publicSupabase } from "@/lib/supabase/client";
+import { cachedCmsRead, CMS_CACHE_TAG } from "@/lib/cms-cache";
 import type { ContentItem, ContentItemInput } from "@/lib/cms-types";
 import { runAction, type ActionResult } from "./result";
 
 export async function listContentItemsBySection(
   sectionId: string
 ): Promise<ActionResult<ContentItem[]>> {
-  return runAction(async () => {
-    const supabase = await createSupabaseServerClient();
-    const { data, error } = await supabase
-      .from("content_items")
-      .select("*")
-      .eq("section_id", sectionId)
-      .order("order_index", { ascending: true });
+  return runAction(() =>
+    cachedCmsRead(["content-items-by-section", sectionId], async () => {
+      if (!publicSupabase) throw new Error("Supabase is not configured.");
+      const { data, error } = await publicSupabase
+        .from("content_items")
+        .select("*")
+        .eq("section_id", sectionId)
+        .order("order_index", { ascending: true });
 
-    if (error) throw error;
-    return data as ContentItem[];
-  });
+      if (error) throw error;
+      return data as ContentItem[];
+    })
+  );
 }
 
 export async function createContentItem(
@@ -39,7 +43,10 @@ export async function createContentItem(
 
     if (error) throw error;
 
+    updateTag(CMS_CACHE_TAG);
     revalidatePath(`/admin/dashboard/${pageSlug}`);
+    revalidatePath(`/ar/${pageSlug === "home" ? "" : pageSlug}`);
+    revalidatePath(`/en/${pageSlug === "home" ? "" : pageSlug}`);
     return data as ContentItem;
   });
 }
@@ -62,7 +69,10 @@ export async function updateContentItem(
 
     if (error) throw error;
 
+    updateTag(CMS_CACHE_TAG);
     revalidatePath(`/admin/dashboard/${pageSlug}`);
+    revalidatePath(`/ar/${pageSlug === "home" ? "" : pageSlug}`);
+    revalidatePath(`/en/${pageSlug === "home" ? "" : pageSlug}`);
     return data as ContentItem;
   });
 }
@@ -78,7 +88,10 @@ export async function deleteContentItem(
     const { error } = await supabase.from("content_items").delete().eq("id", itemId);
     if (error) throw error;
 
+    updateTag(CMS_CACHE_TAG);
     revalidatePath(`/admin/dashboard/${pageSlug}`);
+    revalidatePath(`/ar/${pageSlug === "home" ? "" : pageSlug}`);
+    revalidatePath(`/en/${pageSlug === "home" ? "" : pageSlug}`);
     return { id: itemId };
   });
 }
@@ -128,7 +141,10 @@ export async function moveContentItem(
       .eq("id", swapId);
     if (updateBError) throw updateBError;
 
+    updateTag(CMS_CACHE_TAG);
     revalidatePath(`/admin/dashboard/${pageSlug}`);
+    revalidatePath(`/ar/${pageSlug === "home" ? "" : pageSlug}`);
+    revalidatePath(`/en/${pageSlug === "home" ? "" : pageSlug}`);
     return null;
   });
 }
