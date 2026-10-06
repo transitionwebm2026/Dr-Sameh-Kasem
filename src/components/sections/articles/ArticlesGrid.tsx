@@ -22,7 +22,7 @@ export function ArticlesGrid({ items }: { items: Article[] }) {
               <GlassCard className="overflow-hidden h-full flex flex-col group">
                 <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-brand-forest/5">
                   <Image
-                    src={getArticleImage(article.category)}
+                    src={article.image ?? getArticleImage(article.category)}
                     alt={article.title}
                     fill
                     sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
