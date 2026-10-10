@@ -43,6 +43,21 @@ export function SectionEditorForm({
   // (every other section's public component ignores those columns).
   const isFinalCta = sectionKey === "finalCta";
 
+  // These five Home sections mirror another page's content instead of
+  // keeping their own copy (so there's one place to edit each), but the
+  // heading/CTA above is still Home's own and stays editable here.
+  const mirroredItemsSource: Record<string, string> =
+    pageSlug === "home"
+      ? {
+          testimonialsSection: "Reviews → Reviews",
+          videosSection: "Videos → Videos",
+          articlesSection: "Articles → Articles",
+          surgeriesSection: "Services → Specialties",
+          faqSection: "Services → FAQ",
+        }
+      : {};
+  const mirroredFrom = mirroredItemsSource[sectionKey];
+
   const [titleEn, setTitleEn] = useState(section?.title_en ?? "");
   const [titleAr, setTitleAr] = useState(section?.title_ar ?? "");
   const [titleHighlightEn, setTitleHighlightEn] = useState(section?.title_highlight_en ?? "");
@@ -224,7 +239,12 @@ export function SectionEditorForm({
       </div>
 
       {!isFinalCta ? (
-        section ? (
+        mirroredFrom ? (
+          <p className="rounded-2xl border border-brand-gold/30 bg-brand-gold/5 px-4 py-3 text-xs text-brand-700">
+            These cards mirror <strong>{mirroredFrom}</strong> — edit the items there and they
+            update here automatically. Only the heading above belongs to this Home section.
+          </p>
+        ) : section ? (
           <div>
             <h3 className="mb-3 text-sm font-bold text-brand-forest">Items in this section</h3>
             <ContentItemsEditor

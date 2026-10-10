@@ -19,6 +19,21 @@ import { FaqSection } from "@/components/sections/home/FaqSection";
 import { HeroStatsBar } from "@/components/layout/HeroStatsBar";
 import { FinalCta } from "@/components/layout/FinalCta";
 
+// Home's Testimonials/Videos/Articles/Specialties/FAQ sections show the same
+// cards as the dedicated page they summarize, rather than keeping a second
+// copy of that content — this pulls just that one section's items from
+// another page's data, so there's a single place to edit each.
+async function getSectionItems(pageSlug: string, sectionKey: string): Promise<ContentItem[]> {
+  const pageResult = await getPageBySlug(pageSlug);
+  if (!pageResult.ok || !pageResult.data) return [];
+  const sectionsResult = await listSectionsByPageId(pageResult.data.id);
+  if (!sectionsResult.ok) return [];
+  const section = sectionsResult.data.find((s) => s.section_key === sectionKey);
+  if (!section) return [];
+  const itemsResult = await listContentItemsBySection(section.id);
+  return itemsResult.ok ? itemsResult.data : [];
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -83,6 +98,14 @@ export default async function HomePage({
   const sectionByKey = (key: string) => sections.find((s) => s.section_key === key);
   const itemsFor = (key: string) => itemsBySectionKey.get(key) ?? [];
 
+  const [reviewRows, videoRows, articleRows, disciplineRows, faqRows] = await Promise.all([
+    getSectionItems("reviews", "gridSection"),
+    getSectionItems("videos", "videosSection"),
+    getSectionItems("articles", "articlesSection"),
+    getSectionItems("services", "disciplinesSection"),
+    getSectionItems("services", "faqSection"),
+  ]);
+
   const aboutSection = sectionByKey("about");
   const aboutMeta = aboutSection?.meta ?? {};
   const aboutBullets = itemsFor("about").map((item) => ({
@@ -92,11 +115,13 @@ export default async function HomePage({
   }));
 
   const surgeriesHeading = sectionHeading(locale, sectionByKey("surgeriesSection"));
-  const surgeriesItems = itemsFor("surgeriesSection").map((item) => ({
-    icon: item.icon ?? "activity",
-    title: pickLocale(locale, item.title_en, item.title_ar),
-    text: pickLocale(locale, item.text_en, item.text_ar),
-  }));
+  const surgeriesItems = disciplineRows
+    .filter((item) => !item.parent_id)
+    .map((item) => ({
+      icon: item.icon ?? "activity",
+      title: pickLocale(locale, item.title_en, item.title_ar),
+      text: pickLocale(locale, item.text_en, item.text_ar),
+    }));
 
   const treatmentsHeading = sectionHeading(locale, sectionByKey("treatmentsSection"));
   const treatmentsItems = itemsFor("treatmentsSection").map((item) => ({
@@ -107,14 +132,14 @@ export default async function HomePage({
   }));
 
   const testimonialsHeading = sectionHeading(locale, sectionByKey("testimonialsSection"));
-  const testimonialsItems = itemsFor("testimonialsSection").map((item) => ({
+  const testimonialsItems = reviewRows.map((item) => ({
     name: pickLocale(locale, item.title_en, item.title_ar),
     text: pickLocale(locale, item.text_en, item.text_ar),
     rating: typeof item.meta.rating === "number" ? item.meta.rating : 5,
   }));
 
   const videosHeading = sectionHeading(locale, sectionByKey("videosSection"));
-  const videosItems = itemsFor("videosSection").map((item) => {
+  const videosItems = videoRows.slice(0, 3).map((item) => {
     const videoUrl = metaString(item.meta, "video_url");
     return {
       title: pickLocale(locale, item.title_en, item.title_ar),
@@ -126,15 +151,18 @@ export default async function HomePage({
   });
 
   const articlesHeading = sectionHeading(locale, sectionByKey("articlesSection"));
-  const articlesItems = itemsFor("articlesSection").map((item) => ({
-    title: pickLocale(locale, item.title_en, item.title_ar),
-    text: pickLocale(locale, item.text_en, item.text_ar),
-    slug: metaString(item.meta, "slug"),
-    category: metaString(item.meta, isAr ? "category_ar" : "category_en"),
-  }));
+  const articlesItems = articleRows
+    .filter((item) => !item.parent_id)
+    .slice(0, 3)
+    .map((item) => ({
+      title: pickLocale(locale, item.title_en, item.title_ar),
+      text: pickLocale(locale, item.text_en, item.text_ar),
+      slug: metaString(item.meta, "slug"),
+      category: metaString(item.meta, isAr ? "category_ar" : "category_en"),
+    }));
 
   const faqHeading = sectionHeading(locale, sectionByKey("faqSection"));
-  const faqItems = itemsFor("faqSection").map((item) => ({
+  const faqItems = faqRows.map((item) => ({
     q: pickLocale(locale, item.title_en, item.title_ar),
     a: pickLocale(locale, item.text_en, item.text_ar),
   }));
