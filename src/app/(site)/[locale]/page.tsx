@@ -168,6 +168,7 @@ export default async function HomePage({
       text: pickLocale(locale, item.text_en, item.text_ar),
       slug: metaString(item.meta, "slug"),
       category: metaString(item.meta, isAr ? "category_ar" : "category_en"),
+      image: item.image_url ?? undefined,
     }));
 
   const faqHeading = sectionHeading(locale, sectionByKey("faqSection"));
