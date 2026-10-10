@@ -38,6 +38,7 @@ export function SurgeriesGrid({
             <StaggerItem key={item.title}>
               <LiquidGlassSpecialtyCard
                 title={item.title}
+                description={item.text}
                 icon={getIcon(item.icon)}
                 image={isIconImage(item.icon) ? item.icon : getCardImage(item.icon)}
                 href="/services"
