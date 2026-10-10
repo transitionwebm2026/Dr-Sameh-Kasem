@@ -123,13 +123,22 @@ export default async function HomePage({
       text: pickLocale(locale, item.text_en, item.text_ar),
     }));
 
+  // Mirrors Services' condition cards (the nested items under each
+  // discipline in disciplineRows, already fetched above) instead of
+  // keeping its own separate copy of the same kind of content. A
+  // condition's order_index is scoped to its own parent, not global, so
+  // this has to walk disciplines in order and flatten their children —
+  // slicing the raw rows directly doesn't reproduce the on-page order.
   const treatmentsHeading = sectionHeading(locale, sectionByKey("treatmentsSection"));
-  const treatmentsItems = itemsFor("treatmentsSection").map((item) => ({
-    title: pickLocale(locale, item.title_en, item.title_ar),
-    text: pickLocale(locale, item.text_en, item.text_ar),
-    note: metaString(item.meta, isAr ? "note_ar" : "note_en"),
-    image: item.image_url ?? undefined,
-  }));
+  const treatmentsItems = disciplineRows
+    .filter((item) => !item.parent_id)
+    .flatMap((discipline) => disciplineRows.filter((child) => child.parent_id === discipline.id))
+    .slice(0, 3)
+    .map((item) => ({
+      title: pickLocale(locale, item.title_en, item.title_ar),
+      text: pickLocale(locale, item.text_en, item.text_ar),
+      image: item.icon ?? undefined,
+    }));
 
   const testimonialsHeading = sectionHeading(locale, sectionByKey("testimonialsSection"));
   const testimonialsItems = reviewRows.map((item) => ({

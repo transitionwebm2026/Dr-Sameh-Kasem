@@ -53,6 +53,7 @@ export function SectionEditorForm({
           videosSection: "Videos → Videos",
           articlesSection: "Articles → Articles",
           surgeriesSection: "Services → Specialties",
+          treatmentsSection: "Services → Specialties (sub-items)",
           faqSection: "Services → FAQ",
         }
       : {};
