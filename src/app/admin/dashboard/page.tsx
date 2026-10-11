@@ -1,22 +1,42 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { FileText, MessageSquare } from "lucide-react";
 import { listPages } from "@/lib/controllers/pages";
 import { listRecentConsultationRequests } from "@/lib/controllers/consultations";
+import type { Page, ConsultationRequest } from "@/lib/cms-types";
 
-export default async function DashboardOverviewPage() {
-  const [pagesResult, requestsResult] = await Promise.all([
-    listPages(),
-    listRecentConsultationRequests(8),
-  ]);
+export default function DashboardOverviewPage() {
+  const [data, setData] = useState<{ pages: Page[]; requests: ConsultationRequest[] } | null>(
+    null
+  );
 
-  const pages = pagesResult.ok ? pagesResult.data : [];
-  const requests = requestsResult.ok ? requestsResult.data : [];
+  useEffect(() => {
+    let active = true;
+    Promise.all([listPages(), listRecentConsultationRequests(8)]).then(
+      ([pagesResult, requestsResult]) => {
+        if (!active) return;
+        setData({
+          pages: pagesResult.ok ? pagesResult.data : [],
+          requests: requestsResult.ok ? requestsResult.data : [],
+        });
+      }
+    );
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const pages = data?.pages ?? [];
+  const requests = data?.requests ?? [];
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-black text-brand-forest">Overview</h1>
         <p className="mt-1 text-sm text-brand-800/70">
-          Manage every page&apos;s content from the sidebar. Changes go live immediately.
+          Manage every page&apos;s content from the sidebar. Changes go live after the next
+          site rebuild.
         </p>
       </div>
 

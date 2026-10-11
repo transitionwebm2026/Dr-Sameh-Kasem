@@ -47,7 +47,7 @@ export function ContentItemsEditor({
 
   async function handleCreate(parentId: string | null, input: ContentItemInput) {
     setError(null);
-    const result = await createContentItem(pageSlug, sectionId, { ...input, parent_id: parentId });
+    const result = await createContentItem(sectionId, { ...input, parent_id: parentId });
     if (result.ok) {
       setItems((prev) => [...prev, result.data].sort((a, b) => a.order_index - b.order_index));
       setAdding(false);
@@ -59,7 +59,7 @@ export function ContentItemsEditor({
 
   async function handleUpdate(id: string, input: ContentItemInput) {
     setError(null);
-    const result = await updateContentItem(pageSlug, id, input);
+    const result = await updateContentItem(id, input);
     if (result.ok) {
       setItems((prev) => prev.map((item) => (item.id === id ? result.data : item)));
       setEditingId(null);
@@ -77,7 +77,7 @@ export function ContentItemsEditor({
     if (!confirm(message)) return;
     setError(null);
     startTransition(async () => {
-      const result = await deleteContentItem(pageSlug, id);
+      const result = await deleteContentItem(id);
       if (result.ok) {
         setItems((prev) => prev.filter((item) => item.id !== id && item.parent_id !== id));
       } else {
@@ -89,7 +89,7 @@ export function ContentItemsEditor({
   function handleMove(id: string, direction: "up" | "down", siblingIds: string[]) {
     setError(null);
     startTransition(async () => {
-      const result = await moveContentItem(pageSlug, id, direction, siblingIds);
+      const result = await moveContentItem(id, direction, siblingIds);
       if (result.ok) {
         setItems((prev) => {
           const siblings = siblingIds

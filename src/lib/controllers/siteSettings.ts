@@ -1,12 +1,7 @@
-"use server";
-
-import { revalidatePath, updateTag, unstable_cache } from "next/cache";
-import { requireAdmin } from "@/lib/supabase/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { requireAdminClient } from "@/lib/supabase/admin-client";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { supabase as publicSupabase } from "@/lib/supabase/client";
 import { runAction, type ActionResult } from "./result";
-
-const SITE_SETTINGS_TAG = "site-settings";
 
 export type NavLink = { href: string; label_en: string; label_ar: string };
 export type Branch = { label_en: string; label_ar: string; text_en: string; text_ar: string };
@@ -153,26 +148,15 @@ function normalizePhone(rawDisplay: string, defaultCountryCode = "20") {
 }
 
 // site_settings is public-readable (RLS allows anon select), so this uses
-// the plain anon-key client instead of the cookie-bound server client — the
-// cookie-bound one calls next/headers' cookies(), which is a dynamic API
-// that (a) can't be used inside unstable_cache and (b) forces every page
-// that touches it into fully dynamic, uncached rendering. Since this read
-// happens in the root layout on literally every page, caching it here is
-// what keeps page-to-page navigation fast; an admin save busts the cache
-// via updateTag below.
-const fetchSiteSettingsRow = unstable_cache(
-  async () => {
+// the plain anon-key client — used both at build time (public layout) and
+// from the admin dashboard (browser).
+export async function getSiteSettings(): Promise<ActionResult<SiteSettings>> {
+  return runAction(async () => {
     if (!publicSupabase) throw new Error("Supabase is not configured.");
     const { data, error } = await publicSupabase.from("site_settings").select("*").eq("id", 1).single();
     if (error) throw error;
     return data as SiteSettings;
-  },
-  ["site-settings-row"],
-  { tags: [SITE_SETTINGS_TAG] }
-);
-
-export async function getSiteSettings(): Promise<ActionResult<SiteSettings>> {
-  return runAction(fetchSiteSettingsRow);
+  });
 }
 
 function mergeWithDefaults(row: SiteSettings | null): SiteSettings {
@@ -215,8 +199,8 @@ export async function getSiteSettingsOrDefault(): Promise<SiteSettings> {
 
 export async function updateSiteSettings(input: ContactSettingsInput): Promise<ActionResult<SiteSettings>> {
   return runAction(async () => {
-    await requireAdmin();
-    const supabase = await createSupabaseServerClient();
+    await requireAdminClient();
+    const supabase = createSupabaseBrowserClient();
 
     const { phone_href, whatsapp_number } = normalizePhone(input.phone_display);
 
@@ -229,23 +213,16 @@ export async function updateSiteSettings(input: ContactSettingsInput): Promise<A
 
     if (error) throw error;
 
-    // Phone/social links show up on every page (footer, floating actions,
-    // hero booking card, contact page) — revalidate the whole site rather
-    // than a single route. updateTag busts the cached read immediately
-    // (read-your-own-writes from this Server Action); revalidatePath also
-    // clears the Router/Full Route Cache for these paths.
-    updateTag(SITE_SETTINGS_TAG);
-    revalidatePath("/", "layout");
-    revalidatePath("/admin/dashboard/settings");
-
+    // Under static export there's no server-side cache to bust — this
+    // change shows up on the public site after the next rebuild+redeploy.
     return data as SiteSettings;
   });
 }
 
 export async function updateNavbarFooterContent(input: NavbarFooterInput): Promise<ActionResult<SiteSettings>> {
   return runAction(async () => {
-    await requireAdmin();
-    const supabase = await createSupabaseServerClient();
+    await requireAdminClient();
+    const supabase = createSupabaseBrowserClient();
 
     const { data, error } = await supabase
       .from("site_settings")
@@ -255,11 +232,6 @@ export async function updateNavbarFooterContent(input: NavbarFooterInput): Promi
       .single();
 
     if (error) throw error;
-
-    // Nav links and footer content render in the layout on every page.
-    updateTag(SITE_SETTINGS_TAG);
-    revalidatePath("/", "layout");
-    revalidatePath("/admin/dashboard/settings/navbar-footer");
 
     return data as SiteSettings;
   });

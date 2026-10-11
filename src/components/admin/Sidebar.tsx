@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { LayoutDashboard, FileText, Settings, PanelsTopLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,8 @@ import type { Page } from "@/lib/cms-types";
 
 export function Sidebar({ pages }: { pages: Page[] }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const activeSlug = pathname === "/admin/dashboard/edit" ? searchParams.get("slug") : null;
 
   return (
     <aside className="liquid-glass hidden lg:flex w-64 shrink-0 flex-col gap-1 p-4">
@@ -36,8 +38,8 @@ export function Sidebar({ pages }: { pages: Page[] }) {
 
       <nav className="flex flex-col gap-1">
         {pages.map((page) => {
-          const href = `/admin/dashboard/${page.slug}`;
-          const active = pathname === href;
+          const href = `/admin/dashboard/edit?slug=${page.slug}`;
+          const active = activeSlug === page.slug;
           return (
             <Link
               key={page.id}

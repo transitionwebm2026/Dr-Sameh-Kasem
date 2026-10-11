@@ -79,7 +79,7 @@ export function SectionEditorForm({
   async function handleSave() {
     setSaving(true);
     setError(null);
-    const result = await upsertSection(pageId, pageSlug, sectionKey, {
+    const result = await upsertSection(pageId, sectionKey, {
       eyebrow_en: null,
       eyebrow_ar: null,
       title_en: hideTitleText ? null : titleEn || null,

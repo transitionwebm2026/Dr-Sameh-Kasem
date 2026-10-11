@@ -1,39 +1,32 @@
-"use server";
-
-import { revalidatePath, updateTag } from "next/cache";
-import { requireAdmin } from "@/lib/supabase/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { requireAdminClient } from "@/lib/supabase/admin-client";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { supabase as publicSupabase } from "@/lib/supabase/client";
-import { cachedCmsRead, CMS_CACHE_TAG } from "@/lib/cms-cache";
 import type { ContentItem, ContentItemInput } from "@/lib/cms-types";
 import { runAction, type ActionResult } from "./result";
 
 export async function listContentItemsBySection(
   sectionId: string
 ): Promise<ActionResult<ContentItem[]>> {
-  return runAction(() =>
-    cachedCmsRead(["content-items-by-section", sectionId], async () => {
-      if (!publicSupabase) throw new Error("Supabase is not configured.");
-      const { data, error } = await publicSupabase
-        .from("content_items")
-        .select("*")
-        .eq("section_id", sectionId)
-        .order("order_index", { ascending: true });
+  return runAction(async () => {
+    if (!publicSupabase) throw new Error("Supabase is not configured.");
+    const { data, error } = await publicSupabase
+      .from("content_items")
+      .select("*")
+      .eq("section_id", sectionId)
+      .order("order_index", { ascending: true });
 
-      if (error) throw error;
-      return data as ContentItem[];
-    })
-  );
+    if (error) throw error;
+    return data as ContentItem[];
+  });
 }
 
 export async function createContentItem(
-  pageSlug: string,
   sectionId: string,
   input: ContentItemInput
 ): Promise<ActionResult<ContentItem>> {
   return runAction(async () => {
-    await requireAdmin();
-    const supabase = await createSupabaseServerClient();
+    await requireAdminClient();
+    const supabase = createSupabaseBrowserClient();
 
     const { data, error } = await supabase
       .from("content_items")
@@ -42,23 +35,17 @@ export async function createContentItem(
       .single();
 
     if (error) throw error;
-
-    updateTag(CMS_CACHE_TAG);
-    revalidatePath(`/admin/dashboard/${pageSlug}`);
-    revalidatePath(`/ar/${pageSlug === "home" ? "" : pageSlug}`);
-    revalidatePath(`/en/${pageSlug === "home" ? "" : pageSlug}`);
     return data as ContentItem;
   });
 }
 
 export async function updateContentItem(
-  pageSlug: string,
   itemId: string,
   input: Partial<ContentItemInput>
 ): Promise<ActionResult<ContentItem>> {
   return runAction(async () => {
-    await requireAdmin();
-    const supabase = await createSupabaseServerClient();
+    await requireAdminClient();
+    const supabase = createSupabaseBrowserClient();
 
     const { data, error } = await supabase
       .from("content_items")
@@ -68,30 +55,17 @@ export async function updateContentItem(
       .single();
 
     if (error) throw error;
-
-    updateTag(CMS_CACHE_TAG);
-    revalidatePath(`/admin/dashboard/${pageSlug}`);
-    revalidatePath(`/ar/${pageSlug === "home" ? "" : pageSlug}`);
-    revalidatePath(`/en/${pageSlug === "home" ? "" : pageSlug}`);
     return data as ContentItem;
   });
 }
 
-export async function deleteContentItem(
-  pageSlug: string,
-  itemId: string
-): Promise<ActionResult<{ id: string }>> {
+export async function deleteContentItem(itemId: string): Promise<ActionResult<{ id: string }>> {
   return runAction(async () => {
-    await requireAdmin();
-    const supabase = await createSupabaseServerClient();
+    await requireAdminClient();
+    const supabase = createSupabaseBrowserClient();
 
     const { error } = await supabase.from("content_items").delete().eq("id", itemId);
     if (error) throw error;
-
-    updateTag(CMS_CACHE_TAG);
-    revalidatePath(`/admin/dashboard/${pageSlug}`);
-    revalidatePath(`/ar/${pageSlug === "home" ? "" : pageSlug}`);
-    revalidatePath(`/en/${pageSlug === "home" ? "" : pageSlug}`);
     return { id: itemId };
   });
 }
@@ -103,14 +77,13 @@ export async function deleteContentItem(
  * items in display order, as already loaded by the page.
  */
 export async function moveContentItem(
-  pageSlug: string,
   itemId: string,
   direction: "up" | "down",
   siblingIds: string[]
 ): Promise<ActionResult<null>> {
   return runAction(async () => {
-    await requireAdmin();
-    const supabase = await createSupabaseServerClient();
+    await requireAdminClient();
+    const supabase = createSupabaseBrowserClient();
 
     const index = siblingIds.indexOf(itemId);
     const swapIndex = direction === "up" ? index - 1 : index + 1;
@@ -141,10 +114,6 @@ export async function moveContentItem(
       .eq("id", swapId);
     if (updateBError) throw updateBError;
 
-    updateTag(CMS_CACHE_TAG);
-    revalidatePath(`/admin/dashboard/${pageSlug}`);
-    revalidatePath(`/ar/${pageSlug === "home" ? "" : pageSlug}`);
-    revalidatePath(`/en/${pageSlug === "home" ? "" : pageSlug}`);
     return null;
   });
 }

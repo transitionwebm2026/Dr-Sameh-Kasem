@@ -1,9 +1,21 @@
-import { getSiteSettings } from "@/lib/controllers/siteSettings";
+"use client";
+
+import { useEffect, useState } from "react";
+import { getSiteSettings, type SiteSettings } from "@/lib/controllers/siteSettings";
 import { SiteSettingsForm } from "@/components/admin/SiteSettingsForm";
 
-export default async function SiteSettingsPage() {
-  const result = await getSiteSettings();
-  const settings = result.ok ? result.data : null;
+export default function SiteSettingsPage() {
+  const [settings, setSettings] = useState<SiteSettings | null | undefined>(undefined);
+
+  useEffect(() => {
+    let active = true;
+    getSiteSettings().then((result) => {
+      if (active) setSettings(result.ok ? result.data : null);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <div>
@@ -15,7 +27,7 @@ export default async function SiteSettingsPage() {
         </p>
       </div>
 
-      <SiteSettingsForm settings={settings} />
+      {settings === undefined ? null : <SiteSettingsForm settings={settings} />}
     </div>
   );
 }

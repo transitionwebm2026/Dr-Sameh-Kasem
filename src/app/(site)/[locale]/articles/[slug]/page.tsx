@@ -10,10 +10,16 @@ import { listSectionsByPageId } from "@/lib/controllers/sections";
 import { listContentItemsBySection } from "@/lib/controllers/contentItems";
 import { pickLocale, metaString, finalCtaProps } from "@/lib/cms-render";
 import type { Section } from "@/lib/cms-types";
-import { getArticleImage, type Article } from "@/lib/articles";
+import { getArticleImage, listArticleSlugs, type Article } from "@/lib/articles";
 import { AmbientGlow } from "@/components/ui/AmbientGlow";
 import { FadeIn } from "@/components/motion/FadeIn";
 import { FinalCta } from "@/components/layout/FinalCta";
+import { routing } from "@/i18n/routing";
+
+export async function generateStaticParams() {
+  const slugs = await listArticleSlugs();
+  return routing.locales.flatMap((locale) => slugs.map((slug) => ({ locale, slug })));
+}
 
 async function getArticle(locale: string, slug: string): Promise<Article | undefined> {
   const isAr = locale === "ar";

@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 
-// The proxy already sends signed-out visitors to /admin/login for any
-// /admin/* path, so reaching this page at all means there's a valid
-// session — just forward straight into the dashboard.
+// /admin/dashboard's own layout does the client-side auth check (and sends
+// signed-out visitors to /admin/login) — this just forwards into it.
 export default function AdminIndexPage() {
   redirect("/admin/dashboard");
 }

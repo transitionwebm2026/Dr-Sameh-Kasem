@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, CheckCircle2, AlertCircle } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { siteConfig, buildWhatsAppLink } from "@/lib/site-config";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase/client";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -37,11 +38,18 @@ export function BookingForm({ whatsappNumber }: { whatsappNumber: string }) {
     setStatus("submitting");
 
     try {
-      await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, service, clinic, message, locale }),
-      });
+      if (isSupabaseConfigured && supabase) {
+        // Best-effort record: WhatsApp (below) is the real delivery channel,
+        // so a failed insert here shouldn't block the booking flow.
+        await supabase.from("consultation_requests").insert({
+          name,
+          phone,
+          service: service || null,
+          clinic: clinic || null,
+          message: message || null,
+          locale,
+        });
+      }
 
       const whatsappMessage = t("whatsappTemplate", {
         name,

@@ -1,11 +1,9 @@
-import "server-only";
-import { NotAdminError } from "@/lib/supabase/admin";
+import { NotAdminError } from "@/lib/errors";
 
 /**
- * Standard return shape for every Server Action in `lib/controllers/`.
- * Callers should always check `ok` before touching `data` — no thrown
- * exceptions cross the server/client boundary, since Next.js otherwise
- * serializes those into an opaque "An error occurred" message on the client.
+ * Standard return shape for every mutating/reading function in
+ * `lib/controllers/`. Callers should always check `ok` before touching
+ * `data` rather than relying on a thrown exception.
  */
 export type ActionResult<T> = { ok: true; data: T } | { ok: false; error: string };
 
@@ -20,8 +18,7 @@ export function fail<T = never>(error: string): ActionResult<T> {
 /**
  * Wraps a controller function so every possible failure (a thrown
  * NotAdminError, a Postgres/PostgREST error object, or an unexpected
- * exception) comes back as a typed `ActionResult` instead of crashing the
- * Server Action boundary.
+ * exception) comes back as a typed `ActionResult` instead of throwing.
  */
 export async function runAction<T>(fn: () => Promise<T>): Promise<ActionResult<T>> {
   try {

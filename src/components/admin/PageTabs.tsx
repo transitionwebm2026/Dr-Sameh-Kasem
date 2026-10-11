@@ -39,7 +39,7 @@ export function PageTabs({
       </div>
 
       {active === "hero" ? (
-        <HeroEditorForm pageId={page.id} pageSlug={page.slug} hero={hero} />
+        <HeroEditorForm pageId={page.id} hero={hero} />
       ) : null}
 
       {sectionTabs.map((tab) =>

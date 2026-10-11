@@ -1,3 +1,8 @@
+import { getPageBySlug } from "@/lib/controllers/pages";
+import { listSectionsByPageId } from "@/lib/controllers/sections";
+import { listContentItemsBySection } from "@/lib/controllers/contentItems";
+import { metaString } from "@/lib/cms-render";
+
 export type Article = {
   slug: string;
   date: string;
@@ -26,4 +31,23 @@ const categoryImageMap: Record<string, string> = {
 
 export function getArticleImage(category: string): string {
   return categoryImageMap[category] ?? "/images/brain.png";
+}
+
+export async function listArticleSlugs(): Promise<string[]> {
+  const pageResult = await getPageBySlug("articles");
+  if (!pageResult.ok || !pageResult.data) return [];
+
+  const sectionsResult = await listSectionsByPageId(pageResult.data.id);
+  const section = sectionsResult.ok
+    ? sectionsResult.data.find((s) => s.section_key === "articlesSection")
+    : undefined;
+  if (!section) return [];
+
+  const itemsResult = await listContentItemsBySection(section.id);
+  if (!itemsResult.ok) return [];
+
+  return itemsResult.data
+    .filter((item) => !item.parent_id)
+    .map((item) => metaString(item.meta, "slug"))
+    .filter((slug) => slug.length > 0);
 }

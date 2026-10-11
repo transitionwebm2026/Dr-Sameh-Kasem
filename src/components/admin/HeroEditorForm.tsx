@@ -36,7 +36,7 @@ const emptyHero: HeroInput = {
   booking_card_cta_ar: "",
 };
 
-export function HeroEditorForm({ pageId, pageSlug, hero }: { pageId: string; pageSlug: string; hero: PageHero | null }) {
+export function HeroEditorForm({ pageId, hero }: { pageId: string; hero: PageHero | null }) {
   const [draft, setDraft] = useState<HeroInput>(() =>
     hero
       ? {
@@ -81,7 +81,7 @@ export function HeroEditorForm({ pageId, pageSlug, hero }: { pageId: string; pag
   async function handleSave() {
     setSaving(true);
     setError(null);
-    const result = await upsertHero(pageId, pageSlug, draft);
+    const result = await upsertHero(pageId, draft);
     setSaving(false);
     if (result.ok) {
       setSavedAt(Date.now());

@@ -1,31 +1,54 @@
-import { redirect } from "next/navigation";
-import { NotAdminError, requireAdmin } from "@/lib/supabase/admin";
+"use client";
+
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { NotAdminError } from "@/lib/errors";
+import { requireAdminClient } from "@/lib/supabase/admin-client";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { listPages } from "@/lib/controllers/pages";
+import type { Page } from "@/lib/cms-types";
 import { Sidebar } from "@/components/admin/Sidebar";
 import { Topbar } from "@/components/admin/Topbar";
 
-// Every /admin/dashboard/* screen is per-request and auth-gated — never
-// attempt to prerender it at build time (this also avoids build failures
-// on deployments where Supabase env vars aren't set until runtime).
-export const dynamic = "force-dynamic";
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [state, setState] = useState<{ email: string; pages: Page[] } | null>(null);
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  // The proxy already redirects signed-out visitors away from /admin/*, but
-  // Server Functions can be reached even if a future proxy matcher change
-  // stops covering this route — so every admin surface re-checks here too.
-  let email = "";
-  try {
-    const { user } = await requireAdmin();
-    email = user.email ?? "";
-  } catch (error) {
-    if (error instanceof NotAdminError) {
-      redirect("/admin/login");
-    }
-    throw error;
-  }
+  useEffect(() => {
+    let active = true;
 
-  const pagesResult = await listPages();
-  const pages = pagesResult.ok ? pagesResult.data : [];
+    requireAdminClient()
+      .then(async ({ user }) => {
+        const pagesResult = await listPages();
+        if (!active) return;
+        setState({ email: user.email ?? "", pages: pagesResult.ok ? pagesResult.data : [] });
+      })
+      .catch((error) => {
+        if (!active) return;
+        if (error instanceof NotAdminError) {
+          router.replace(`/admin/login?next=${encodeURIComponent(pathname)}`);
+          return;
+        }
+        throw error;
+      });
+
+    const supabase = createSupabaseBrowserClient();
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) {
+        router.replace("/admin/login");
+      }
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, [pathname, router]);
+
+  if (!state) return null;
 
   return (
     <div className="relative flex min-h-screen overflow-hidden bg-brand-ivory">
@@ -38,9 +61,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
         aria-hidden="true"
       />
 
-      <Sidebar pages={pages} />
+      <Suspense fallback={null}>
+        <Sidebar pages={state.pages} />
+      </Suspense>
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
-        <Topbar email={email} />
+        <Topbar email={state.email} />
         <main className="flex-1 overflow-y-auto p-4 lg:p-8">{children}</main>
       </div>
     </div>

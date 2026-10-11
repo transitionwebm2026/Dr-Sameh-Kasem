@@ -1,6 +1,4 @@
-"use server";
-
-import { requireAdmin } from "@/lib/supabase/admin";
+import { requireAdminClient } from "@/lib/supabase/admin-client";
 import type { MediaAsset } from "@/lib/cms-types";
 import { runAction, type ActionResult } from "./result";
 
@@ -18,7 +16,7 @@ export async function registerMedia(input: {
   altTextAr?: string;
 }): Promise<ActionResult<MediaAsset>> {
   return runAction(async () => {
-    const { supabase, user } = await requireAdmin();
+    const { supabase, user } = await requireAdminClient();
 
     const { data, error } = await supabase
       .from("media")
@@ -39,7 +37,7 @@ export async function registerMedia(input: {
 
 export async function listMedia(): Promise<ActionResult<MediaAsset[]>> {
   return runAction(async () => {
-    const { supabase } = await requireAdmin();
+    const { supabase } = await requireAdminClient();
     const { data, error } = await supabase
       .from("media")
       .select("*")
