@@ -132,7 +132,16 @@ function normalizePhone(rawDisplay: string, defaultCountryCode = "20") {
   if (!digits) return { phone_href: "tel:", whatsapp_number: "" };
 
   let international: string;
-  if (digits.startsWith("+")) {
+  if (digits.startsWith("+00")) {
+    // "+00..." — redundant "+", treat like a plain "00" prefix.
+    international = digits.slice(3);
+  } else if (digits.startsWith("+0")) {
+    // "+0..." — a local number mistakenly typed with a "+" in front (e.g.
+    // "+01271222047"): the leading 0 is a local trunk prefix, not part of
+    // a real international number, so apply the country code instead of
+    // trusting the "+" blindly.
+    international = defaultCountryCode + digits.slice(2);
+  } else if (digits.startsWith("+")) {
     international = digits.slice(1);
   } else if (digits.startsWith("00")) {
     international = digits.slice(2);
