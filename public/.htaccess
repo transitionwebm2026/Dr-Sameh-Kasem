@@ -1,1 +1,8 @@
 RedirectMatch 302 ^/$ /ar/
+
+# Any other path with no locale prefix (e.g. a bookmarked/typed "/contact")
+# has no exported HTML file either, since every real page lives under
+# /ar/* or /en/*. Apache's own 404 would otherwise show here with no
+# middleware left to add the prefix — serve the app's not-found page
+# instead, which redirects client-side to /ar/<path>.
+ErrorDocument 404 /404.html
