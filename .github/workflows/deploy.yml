@@ -1,0 +1,44 @@
+name: Build and Deploy to Hostinger
+
+on:
+  # Fired by a Supabase Database Webhook whenever the admin saves content.
+  repository_dispatch:
+    types: [cms-content-changed]
+  # A normal code push (e.g. this file's own changes) also redeploys.
+  push:
+    branches: [main]
+  # Manual "run now" button in the Actions tab, for a one-off redeploy.
+  workflow_dispatch: {}
+
+# Collapses rapid-fire triggers (an admin saving several fields in a row =
+# several webhook calls in a few seconds) into just the latest run.
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Deploy to Hostinger via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.HOSTINGER_FTP_HOST }}
+          username: ${{ secrets.HOSTINGER_FTP_USER }}
+          password: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./out/
+          server-dir: ./public_html/
