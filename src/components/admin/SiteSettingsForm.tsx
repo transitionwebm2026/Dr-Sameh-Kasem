@@ -7,6 +7,7 @@ import { updateSiteSettings, type SiteSettings } from "@/lib/controllers/siteSet
 
 export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }) {
   const [phoneDisplay, setPhoneDisplay] = useState(settings?.phone_display ?? "");
+  const [whatsappDisplay, setWhatsappDisplay] = useState(settings?.whatsapp_display ?? "");
   const [email, setEmail] = useState(settings?.email ?? "");
   const [facebookUrl, setFacebookUrl] = useState(settings?.facebook_url ?? "");
   const [instagramUrl, setInstagramUrl] = useState(settings?.instagram_url ?? "");
@@ -21,6 +22,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
     setError(null);
     const result = await updateSiteSettings({
       phone_display: phoneDisplay,
+      whatsapp_display: whatsappDisplay || null,
       email,
       facebook_url: facebookUrl || null,
       instagram_url: instagramUrl || null,
@@ -41,7 +43,7 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
       <div>
         <label className="block space-y-1.5">
           <span className="text-xs font-semibold uppercase tracking-wide text-brand-700">
-            Phone / WhatsApp number
+            Phone number
           </span>
           <input
             dir="ltr"
@@ -52,9 +54,28 @@ export function SiteSettingsForm({ settings }: { settings: SiteSettings | null }
           />
         </label>
         <p className="mt-1.5 text-[11px] text-brand-700/60">
-          Used for the call button, the WhatsApp button, and everywhere the number is shown. You
-          can type it as a local Egyptian number (e.g. 01147886551) or with a country code — the
-          country code is added automatically for the call/WhatsApp links.
+          Used for the call button and everywhere the phone number is shown. You can type it as a
+          local Egyptian number (e.g. 01147886551) or with a country code — the country code is
+          added automatically.
+        </p>
+      </div>
+
+      <div>
+        <label className="block space-y-1.5">
+          <span className="text-xs font-semibold uppercase tracking-wide text-brand-700">
+            WhatsApp number
+          </span>
+          <input
+            dir="ltr"
+            value={whatsappDisplay}
+            onChange={(event) => setWhatsappDisplay(event.target.value)}
+            placeholder="Leave empty to use the phone number above"
+            className="w-full rounded-xl border border-brand-900/15 bg-white/70 px-3.5 py-2.5 text-sm text-brand-forest outline-none focus:border-brand-gold"
+          />
+        </label>
+        <p className="mt-1.5 text-[11px] text-brand-700/60">
+          Used for the floating WhatsApp button and the booking form. Only fill this in if it&apos;s
+          a different number from the phone number above.
         </p>
       </div>
 

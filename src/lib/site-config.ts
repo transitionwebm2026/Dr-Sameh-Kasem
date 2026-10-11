@@ -21,8 +21,29 @@ export const siteConfig = {
   },
   clinics: [
     {
-      ar: { name: "العيادة الرئيسية", address: "التجمع الخامس، ميديكال بارك بريميير، القاهرة الجديدة" },
-      en: { name: "Main Clinic", address: "5th Settlement, Medical Park Premier, New Cairo" },
+      ar: { name: "مصر الجديدة" },
+      en: { name: "Heliopolis" },
+      mapUrl: "https://maps.app.goo.gl/EMutUAhHwnisxix26",
+    },
+    {
+      ar: { name: "المهندسين" },
+      en: { name: "Mohandessin" },
+      mapUrl: "https://maps.app.goo.gl/U96iBpU7vKC9GVhq8",
+    },
+    {
+      ar: { name: "شبرا" },
+      en: { name: "Shubra" },
+      mapUrl: "https://maps.app.goo.gl/4Y1GMLwbwPTeGbaJ8",
+    },
+    {
+      ar: { name: "العبور" },
+      en: { name: "El Obour" },
+      mapUrl: "https://maps.app.goo.gl/xhhXT9j3gBJfD85f9",
+    },
+    {
+      ar: { name: "التجمع الخامس" },
+      en: { name: "5th Settlement" },
+      mapUrl: "https://maps.app.goo.gl/fKiphTFaq1dJmENk6",
       mapEmbed:
         "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13803.0!2d31.4!3d30.02!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDAxJzEyLjAiTiAzMcKwMjQnMDAuMCJF!5e0!3m2!1sen!2seg!4v1700000000000",
     },

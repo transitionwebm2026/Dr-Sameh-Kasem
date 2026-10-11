@@ -9,6 +9,7 @@ export type Branch = { label_en: string; label_ar: string; text_en: string; text
 export type SiteSettings = {
   phone_display: string;
   phone_href: string;
+  whatsapp_display: string | null;
   whatsapp_number: string;
   email: string;
   facebook_url: string | null;
@@ -35,6 +36,7 @@ export type SiteSettings = {
 
 export type ContactSettingsInput = {
   phone_display: string;
+  whatsapp_display: string | null;
   email: string;
   facebook_url: string | null;
   instagram_url: string | null;
@@ -67,6 +69,7 @@ export type NavbarFooterInput = {
 const DEFAULT_SETTINGS: SiteSettings = {
   phone_display: "+20 100 123 4567",
   phone_href: "tel:+201001234567",
+  whatsapp_display: null,
   whatsapp_number: "201001234567",
   email: "contact@drsamehqassem.com",
   facebook_url: "https://facebook.com/drsamehqassem",
@@ -173,6 +176,7 @@ function mergeWithDefaults(row: SiteSettings | null): SiteSettings {
   return {
     phone_display: row.phone_display || DEFAULT_SETTINGS.phone_display,
     phone_href: row.phone_href || DEFAULT_SETTINGS.phone_href,
+    whatsapp_display: row.whatsapp_display,
     whatsapp_number: row.whatsapp_number || DEFAULT_SETTINGS.whatsapp_number,
     email: row.email || DEFAULT_SETTINGS.email,
     facebook_url: row.facebook_url,
@@ -211,7 +215,10 @@ export async function updateSiteSettings(input: ContactSettingsInput): Promise<A
     await requireAdminClient();
     const supabase = createSupabaseBrowserClient();
 
-    const { phone_href, whatsapp_number } = normalizePhone(input.phone_display);
+    const { phone_href } = normalizePhone(input.phone_display);
+    // The WhatsApp number can differ from the call-in phone number — only
+    // fall back to the phone number when the admin hasn't set one.
+    const { whatsapp_number } = normalizePhone(input.whatsapp_display || input.phone_display);
 
     const { data, error } = await supabase
       .from("site_settings")
