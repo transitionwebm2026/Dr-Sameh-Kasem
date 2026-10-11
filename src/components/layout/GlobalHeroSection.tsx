@@ -92,7 +92,7 @@ export async function GlobalHeroSection({
             fill
             priority
             sizes="100vw"
-            className="object-cover object-[88%_top] rtl:object-[12%_top]"
+            className="object-cover object-[center_top] lg:object-[88%_top] lg:rtl:object-[12%_top]"
           />
           <div
             className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand-ivory/95 via-brand-ivory/30 to-transparent rtl:bg-gradient-to-l"

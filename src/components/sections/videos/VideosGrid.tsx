@@ -65,9 +65,6 @@ export function VideosGrid({ items }: { items: Video[] }) {
                     <Play className="w-6 h-6 sm:w-7 sm:h-7 fill-current -translate-x-0.5 rtl:translate-x-0.5" />
                   </span>
                 </div>
-                <span className="absolute top-3 end-3 bg-black/60 px-2 py-0.5 rounded text-[10px] font-mono text-white">
-                  {video.duration}
-                </span>
                 <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
                   <span className="block text-[10px] text-brand-gold font-bold uppercase tracking-wide">
                     {video.category}

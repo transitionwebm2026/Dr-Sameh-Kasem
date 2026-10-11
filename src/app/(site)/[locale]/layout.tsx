@@ -59,6 +59,7 @@ export default async function LocaleLayout({
     notFound();
   }
   setRequestLocale(locale);
+  const common = await getTranslations({ locale, namespace: "common" });
 
   const dir = locale === "ar" ? "rtl" : "ltr";
 
@@ -100,6 +101,9 @@ export default async function LocaleLayout({
           locale === "ar" ? "font-cairo" : "font-inter"
         }`}
       >
+        <a href="#main-content" className="skip-link">
+          {common("skipToContent")}
+        </a>
         <NextIntlClientProvider>
           <VideoModalProvider>
             <Navbar
@@ -108,7 +112,7 @@ export default async function LocaleLayout({
               navLinks={navLinks}
               bookNowLabel={bookNowLabel}
             />
-            <main>{children}</main>
+            <main id="main-content">{children}</main>
             <Footer phoneDisplay={contact.phone_display} navLinks={navLinks} content={footerContent} />
             <FloatingActions phoneHref={contact.phone_href} whatsappNumber={contact.whatsapp_number} />
           </VideoModalProvider>
