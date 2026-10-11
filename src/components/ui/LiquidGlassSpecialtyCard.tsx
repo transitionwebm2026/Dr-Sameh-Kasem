@@ -26,7 +26,7 @@ export function LiquidGlassSpecialtyCard({
     >
       <Link
         href={href}
-        className="relative flex h-full min-h-[300px] sm:min-h-[320px] flex-col items-center rounded-[2rem] border border-white/80 bg-gradient-to-b from-[#fbf9f5] to-[#f4f0ea] px-6 pb-10 pt-8 text-center shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),0_15px_35px_rgba(10,42,34,0.08)] transition-shadow duration-300 group-hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),0_25px_50px_rgba(10,42,34,0.16)]"
+        className="relative flex h-full min-h-[300px] sm:min-h-[320px] flex-col items-center rounded-[2rem] border border-white/80 bg-gradient-to-b from-[#fbf9f5] to-[#f4f0ea] pb-10 text-center shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),0_15px_35px_rgba(10,42,34,0.08)] transition-shadow duration-300 group-hover:shadow-[inset_0_2px_4px_rgba(255,255,255,0.9),0_25px_50px_rgba(10,42,34,0.16)]"
       >
         {/* Shimmer sweep, clipped to the card's own rounded corners without
             affecting the arrow button below, which deliberately overlaps
@@ -39,21 +39,21 @@ export function LiquidGlassSpecialtyCard({
         </span>
 
         {image ? (
-          <div className="relative mb-5 h-28 w-28 shrink-0 transition-transform duration-300 group-hover:scale-105 sm:h-32 sm:w-32">
+          <div className="relative h-32 w-full shrink-0 overflow-hidden rounded-t-[2rem] sm:h-36">
             <Image
               src={image}
               alt={title}
               fill
-              sizes="160px"
-              className="object-contain"
-              style={{
-                maskImage: "radial-gradient(circle, black 58%, transparent 88%)",
-                WebkitMaskImage: "radial-gradient(circle, black 58%, transparent 88%)",
-              }}
+              sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 50vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+            <div
+              className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent"
+              aria-hidden="true"
             />
           </div>
         ) : (
-          <div className="liquid-glass relative mb-5 flex h-24 w-24 shrink-0 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-105 sm:h-28 sm:w-28">
+          <div className="liquid-glass relative mb-5 mt-8 flex h-24 w-24 shrink-0 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-105 sm:h-28 sm:w-28">
             {/* glossy sphere highlight, simulating light on curved glass */}
             <span
               className="pointer-events-none absolute start-3 top-3 h-7 w-7 rounded-full bg-gradient-to-br from-white/90 via-white/30 to-transparent blur-[2px]"
@@ -81,15 +81,17 @@ export function LiquidGlassSpecialtyCard({
           </div>
         )}
 
-        <h3 className="relative font-tajawal text-base sm:text-lg font-bold leading-tight tracking-wide text-brand-forest text-balance">
-          {title}
-        </h3>
+        <div className="relative flex flex-1 flex-col items-center px-6 pt-5">
+          <h3 className="font-tajawal text-base sm:text-lg font-bold leading-tight tracking-wide text-brand-forest text-balance">
+            {title}
+          </h3>
 
-        {description ? (
-          <p className="relative mt-2 line-clamp-3 text-xs leading-relaxed text-brand-800/70 text-balance">
-            {description}
-          </p>
-        ) : null}
+          {description ? (
+            <p className="relative mt-2 line-clamp-3 text-xs leading-relaxed text-brand-800/70 text-balance">
+              {description}
+            </p>
+          ) : null}
+        </div>
 
         <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 flex h-9 w-9 items-center justify-center rounded-full border border-slate-100 bg-white text-brand-gold shadow-md transition-all duration-300 group-hover:scale-110 group-hover:bg-brand-forest group-hover:text-white">
           <ArrowRight className="h-4 w-4 rtl:rotate-180" />
