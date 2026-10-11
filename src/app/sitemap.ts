@@ -5,6 +5,8 @@ import { listArticleSlugs } from "@/lib/articles";
 
 const paths = ["", "/about", "/services", "/reviews", "/videos", "/articles", "/contact"];
 
+export const dynamic = "force-static";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
