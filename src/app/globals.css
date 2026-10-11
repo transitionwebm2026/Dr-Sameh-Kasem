@@ -192,16 +192,6 @@ body {
   outline-offset: 2px;
 }
 
-/* ---------- Utility: legible text over a photo, without a wash-out
-   overlay — a tight edge (not a diffuse glow) so glyphs stay readable
-   against both light and dark parts of the image underneath. ---------- */
-.text-over-photo {
-  text-shadow:
-    0 1px 1px rgba(251, 249, 244, 0.9),
-    0 0 3px rgba(251, 249, 244, 0.8),
-    0 1px 4px rgba(10, 42, 34, 0.3);
-}
-
 /* ---------- Utility: skip-to-content link ---------- */
 .skip-link {
   position: fixed;

@@ -95,6 +95,10 @@ export async function GlobalHeroSection({
             sizes="100vw"
             className="object-cover object-[center_top] lg:object-[88%_top] lg:rtl:object-[12%_top]"
           />
+          <div
+            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-brand-ivory/75 via-brand-ivory/20 to-transparent rtl:bg-gradient-to-l"
+            aria-hidden="true"
+          />
         </>
       ) : null}
 
@@ -147,12 +151,7 @@ export async function GlobalHeroSection({
             )}
           >
             <FadeIn delay={0.05}>
-              <h1
-                className={cn(
-                  "text-balance font-tajawal text-4xl font-black leading-tight tracking-tight text-brand-forest sm:text-5xl lg:text-6xl",
-                  showDoctor && "text-over-photo"
-                )}
-              >
+              <h1 className="text-balance font-tajawal text-4xl font-black leading-tight tracking-tight text-brand-forest sm:text-5xl lg:text-6xl">
                 {title}{" "}
                 <span className="text-transparent bg-clip-text bg-gradient-to-l from-brand-gold via-brand-600 to-brand-forest">
                   {titleHighlight}
@@ -164,7 +163,7 @@ export async function GlobalHeroSection({
               <p
                 className={cn(
                   "text-base leading-relaxed text-brand-800/85 sm:text-lg",
-                  showDoctor ? "mx-auto max-w-xl lg:mx-0 text-over-photo" : "mx-auto max-w-2xl"
+                  showDoctor ? "mx-auto max-w-xl lg:mx-0" : "mx-auto max-w-2xl"
                 )}
                 dangerouslySetInnerHTML={{ __html: subtitle }}
               />
