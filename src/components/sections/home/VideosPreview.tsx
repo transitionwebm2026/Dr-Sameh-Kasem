@@ -54,9 +54,6 @@ export function VideosPreview({
                       onClick={() => openVideo(video.videoUrl, video.title)}
                     />
                   </div>
-                  <span className="absolute bottom-3 end-3 bg-black/70 px-2.5 py-0.5 rounded text-xs font-mono text-white">
-                    {video.duration}
-                  </span>
                 </div>
                 <div className="p-6 space-y-2">
                   <span className="text-xs text-brand-gold font-bold">{video.category}</span>
