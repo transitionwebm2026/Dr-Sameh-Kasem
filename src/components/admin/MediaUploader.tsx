@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ImageUp, Loader2, X } from "lucide-react";
 import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/browser";
 import { registerMedia } from "@/lib/controllers/media";
+import { compressImage } from "@/lib/image-compress";
 import { cn } from "@/lib/utils";
 
 const BUCKET = "cms-media";
@@ -56,11 +57,12 @@ export function MediaUploader({
 
     setIsUploading(true);
     try {
+      const optimized = await compressImage(file);
       const supabase = createSupabaseBrowserClient();
-      const extension = file.name.split(".").pop() || "bin";
+      const extension = optimized.name.split(".").pop() || "bin";
       const path = `${crypto.randomUUID()}.${extension}`;
 
-      const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, file, {
+      const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, optimized, {
         cacheControl: "3600",
         upsert: false,
       });
