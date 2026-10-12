@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { ArrowRight, Calendar, Clock } from "lucide-react";
+import { ArrowRight, Clock } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { buildAlternates } from "@/lib/seo";
 import { getPageBySlug } from "@/lib/controllers/pages";
@@ -115,22 +115,15 @@ export default async function ArticleDetailPage({
           </FadeIn>
 
           <FadeIn delay={0.05}>
-            <span className="mt-6 inline-flex w-fit items-center rounded-full bg-brand-gold/15 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wide text-brand-gold">
-              {article.category}
-            </span>
-            <h1 className="mt-4 text-balance font-tajawal text-3xl font-black leading-tight tracking-tight text-brand-forest sm:text-4xl lg:text-5xl">
+            <h1 className="mt-6 text-balance font-tajawal text-3xl font-black leading-tight tracking-tight text-brand-forest sm:text-4xl lg:text-5xl">
               {article.title}
             </h1>
-            <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-semibold text-brand-700">
-              <span className="flex items-center gap-1.5">
-                <Calendar className="h-4 w-4" />
-                {article.date}
-              </span>
-              <span className="flex items-center gap-1.5">
+            {article.readTime ? (
+              <div className="mt-5 flex items-center gap-1.5 text-sm font-semibold text-brand-700">
                 <Clock className="h-4 w-4" />
                 {article.readTime}
-              </span>
-            </div>
+              </div>
+            ) : null}
           </FadeIn>
 
           <FadeIn delay={0.1}>

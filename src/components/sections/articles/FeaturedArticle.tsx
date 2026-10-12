@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Calendar, ArrowRight } from "lucide-react";
+import { Clock, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { FadeIn } from "@/components/motion/FadeIn";
@@ -24,15 +24,14 @@ export function FeaturedArticle({ featured }: { featured: Article }) {
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <span className="absolute top-5 start-5 px-3.5 py-1.5 rounded-full bg-brand-gold text-brand-deep text-xs font-bold">
-                {featured.category}
-              </span>
             </div>
             <div className="p-8 sm:p-10 flex flex-col justify-center gap-4">
-              <span className="text-xs text-brand-700 font-semibold flex items-center gap-1.5">
-                <Calendar className="w-4 h-4" />
-                {featured.date} • {featured.readTime}
-              </span>
+              {featured.readTime ? (
+                <span className="text-xs text-brand-700 font-semibold flex items-center gap-1.5">
+                  <Clock className="w-4 h-4" />
+                  {featured.readTime}
+                </span>
+              ) : null}
               <h2 className="text-2xl sm:text-3xl font-black text-brand-forest font-tajawal leading-snug text-balance">
                 {featured.title}
               </h2>

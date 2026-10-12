@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { ArrowRight, Calendar } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { AmbientGlow } from "@/components/ui/AmbientGlow";
@@ -30,20 +30,13 @@ export function ArticlesGrid({ items }: { items: Article[] }) {
                   />
                 </div>
                 <div className="p-6 flex flex-col gap-2 flex-1">
-                  <span className="text-[11px] text-brand-gold font-bold uppercase tracking-wide">
-                    {article.category}
-                  </span>
                   <h3 className="text-lg font-bold text-brand-forest leading-snug group-hover:text-brand-600 transition-colors">
                     {article.title}
                   </h3>
                   <p className="text-xs sm:text-sm text-brand-800/80 leading-relaxed flex-1">
                     {article.text}
                   </p>
-                  <div className="flex items-center justify-between pt-4 mt-2 border-t border-brand-900/10">
-                    <span className="text-[11px] text-brand-700 font-semibold flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5" />
-                      {article.date}
-                    </span>
+                  <div className="flex items-center justify-end pt-4 mt-2 border-t border-brand-900/10">
                     <Link
                       href={`/articles/${article.slug}`}
                       className="inline-flex items-center gap-1.5 text-xs font-bold text-brand-forest group-hover:text-brand-gold transition-colors"
