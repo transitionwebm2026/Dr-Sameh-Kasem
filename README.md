@@ -68,9 +68,9 @@ Every page's **Hero** banner and the sections listed in `src/lib/cms-section-reg
 npm run preview   # next build + serve the static /out folder on :4000
 ```
 
-The site is a **static export** (`output: "export"`): all CMS content is read from Supabase at build time, so a dashboard save only reaches the live site after a rebuild. `.github/workflows/deploy.yml` builds and uploads `/out` to Hostinger over FTPS on every push to `main`, on the manual "Run workflow" button, and on every dashboard save.
+The site is a **static export** (`output: "export"`): all CMS content is read from Supabase at build time, so a dashboard save only reaches the live site after a rebuild. Production runs on **Vercel**, which rebuilds on every push to `main`. `.github/workflows/deploy.yml` can additionally build and upload `/out` to Hostinger over FTPS (on push, the manual "Run workflow" button, or a dashboard save).
 
-One-time setup for that to work:
+**Rebuild on every dashboard save**: run `supabase/migrations/2026_07_auto_deploy_on_content_change.sql` in the Supabase SQL Editor, then store in Vault whichever applies (exact commands in that file's header):
 
-1. **GitHub repo secrets** (Settings → Secrets and variables → Actions): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `HOSTINGER_FTP_HOST`, `HOSTINGER_FTP_USER`, `HOSTINGER_FTP_PASSWORD`.
-2. **Rebuild-on-save trigger**: run `supabase/migrations/2026_07_auto_deploy_on_content_change.sql` in the Supabase SQL Editor, then store a GitHub fine-grained token (this repo only, "Contents: Read and write") in Vault as `github_deploy_token` — the exact commands are in that file's header.
+- **Vercel**: a Deploy Hook URL (Project → Settings → Git → Deploy Hooks, branch `main`) as `vercel_deploy_hook_url`.
+- **Hostinger**: a GitHub fine-grained token (this repo only, "Contents: Read and write") as `github_deploy_token`, plus the repo secrets the workflow needs (Settings → Secrets and variables → Actions): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `HOSTINGER_FTP_HOST`, `HOSTINGER_FTP_USER`, `HOSTINGER_FTP_PASSWORD`.
