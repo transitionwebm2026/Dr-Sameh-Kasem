@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node -e \"require('fs').rmSync('.next/cache/fetch-cache', { recursive: true, force: true })\"",
     "build": "next build",
     "start": "serve out -l 4000",
     "lint": "eslint",
-    "preview": "next build && serve out -l 4000"
+    "preview": "npm run build && serve out -l 4000"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

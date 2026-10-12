@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   // Static export: builds to a plain /out directory of HTML/CSS/JS with no
   // Node server required at runtime, for hosting as a static website
   // (e.g. Hostinger's static hosting tier, no Node.js "web app" slot).
+  // Export prerenders every page with its Supabase reads force-cached, and
+  // that cache (.next/cache/fetch-cache) survives across builds — so
+  // without the `prebuild` script wiping it, a rebuild would keep serving
+  // whatever the dashboard content was on the first build, forever.
   output: "export",
   // Emit path/index.html (not path.html) for every route, so a plain
   // Apache host serves clean URLs like /ar/services via its default

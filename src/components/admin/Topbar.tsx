@@ -15,7 +15,14 @@ export function Topbar({ email }: { email: string }) {
   return (
     <header className="liquid-glass flex items-center justify-between gap-4 px-4 py-3 lg:px-6">
       <div className="text-sm font-semibold text-brand-forest lg:hidden">Admin</div>
-      <div className="hidden text-sm text-brand-800/70 lg:block">Signed in as {email}</div>
+      <div className="hidden text-sm text-brand-800/70 lg:block">
+        Signed in as {email}
+        {/* The public site is a static export rebuilt on every save (see
+            .github/workflows/deploy.yml), so edits aren't instant there. */}
+        <span className="ms-3 text-xs text-brand-700/60">
+          Saved changes appear on the live website a few minutes later.
+        </span>
+      </div>
       <button
         type="button"
         onClick={handleSignOut}

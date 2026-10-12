@@ -65,8 +65,12 @@ Every page's **Hero** banner and the sections listed in `src/lib/cms-section-reg
 ## Build & Deploy
 
 ```bash
-npm run build
-npm run start
+npm run preview   # next build + serve the static /out folder on :4000
 ```
 
-Deploys cleanly to Vercel (or any Node host). Set the same environment variables from `.env.local` in your hosting provider's dashboard.
+The site is a **static export** (`output: "export"`): all CMS content is read from Supabase at build time, so a dashboard save only reaches the live site after a rebuild. `.github/workflows/deploy.yml` builds and uploads `/out` to Hostinger over FTPS on every push to `main`, on the manual "Run workflow" button, and on every dashboard save.
+
+One-time setup for that to work:
+
+1. **GitHub repo secrets** (Settings → Secrets and variables → Actions): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `HOSTINGER_FTP_HOST`, `HOSTINGER_FTP_USER`, `HOSTINGER_FTP_PASSWORD`.
+2. **Rebuild-on-save trigger**: run `supabase/migrations/2026_07_auto_deploy_on_content_change.sql` in the Supabase SQL Editor, then store a GitHub fine-grained token (this repo only, "Contents: Read and write") in Vault as `github_deploy_token` — the exact commands are in that file's header.

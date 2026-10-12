@@ -1,7 +1,8 @@
 name: Build and Deploy to Hostinger
 
 on:
-  # Fired by a Supabase Database Webhook whenever the admin saves content.
+  # Fired by a database trigger whenever the admin saves content — see
+  # supabase/migrations/2026_07_auto_deploy_on_content_change.sql.
   repository_dispatch:
     types: [cms-content-changed]
   # A normal code push (e.g. this file's own changes) also redeploys.
@@ -11,15 +12,38 @@ on:
   workflow_dispatch: {}
 
 # Collapses rapid-fire triggers (an admin saving several fields in a row =
-# several webhook calls in a few seconds) into just the latest run.
+# several dispatches in a few seconds) into at most one running deploy plus
+# one queued behind it: GitHub keeps only the newest pending run per group.
+# The running one is never cancelled, since cutting off the FTP upload
+# halfway would leave the live site with a mix of old and new files.
 concurrency:
   group: deploy
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
+      # Without the Supabase secrets every CMS read comes back empty and the
+      # build dies on an unrelated-looking generateStaticParams error, so
+      # fail first with a message that names the actual problem.
+      - name: Check required secrets
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          HOSTINGER_FTP_HOST: ${{ secrets.HOSTINGER_FTP_HOST }}
+          HOSTINGER_FTP_USER: ${{ secrets.HOSTINGER_FTP_USER }}
+          HOSTINGER_FTP_PASSWORD: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
+        run: |
+          missing=0
+          for name in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY HOSTINGER_FTP_HOST HOSTINGER_FTP_USER HOSTINGER_FTP_PASSWORD; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Missing repository secret $name (Settings → Secrets and variables → Actions)"
+              missing=1
+            fi
+          done
+          exit $missing
+
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
