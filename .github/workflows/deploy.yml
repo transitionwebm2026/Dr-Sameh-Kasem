@@ -21,13 +21,18 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+  # Production is on Vercel until the site moves to Hostinger, so with none
+  # of the secrets set this skips the deploy (green, with a notice) instead
+  # of failing every push. Once they're added it deploys on its own; a
+  # partial set still fails, naming what's missing — without the Supabase
+  # ones every CMS read comes back empty and the build would otherwise die
+  # on an unrelated-looking generateStaticParams error.
+  check-config:
     runs-on: ubuntu-latest
+    outputs:
+      configured: ${{ steps.check.outputs.configured }}
     steps:
-      # Without the Supabase secrets every CMS read comes back empty and the
-      # build dies on an unrelated-looking generateStaticParams error, so
-      # fail first with a message that names the actual problem.
-      - name: Check required secrets
+      - id: check
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -35,15 +40,30 @@ jobs:
           HOSTINGER_FTP_USER: ${{ secrets.HOSTINGER_FTP_USER }}
           HOSTINGER_FTP_PASSWORD: ${{ secrets.HOSTINGER_FTP_PASSWORD }}
         run: |
-          missing=0
+          missing=()
           for name in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY HOSTINGER_FTP_HOST HOSTINGER_FTP_USER HOSTINGER_FTP_PASSWORD; do
             if [ -z "${!name}" ]; then
-              echo "::error::Missing repository secret $name (Settings → Secrets and variables → Actions)"
-              missing=1
+              missing+=("$name")
             fi
           done
-          exit $missing
+          if [ "${#missing[@]}" -eq 5 ]; then
+            echo "::notice::Hostinger deploy isn't set up yet (no repository secrets), skipping."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "${#missing[@]}" -gt 0 ]; then
+            for name in "${missing[@]}"; do
+              echo "::error::Missing repository secret $name (Settings → Secrets and variables → Actions)"
+            done
+            exit 1
+          fi
+          echo "configured=true" >> "$GITHUB_OUTPUT"
 
+  build-and-deploy:
+    needs: check-config
+    if: needs.check-config.outputs.configured == 'true'
+    runs-on: ubuntu-latest
+    steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
