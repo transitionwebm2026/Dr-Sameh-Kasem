@@ -58,9 +58,11 @@ begin
 
   -- Queued, not sent inline: pg_net delivers these from a background worker
   -- after this transaction commits (and drops them if it rolls back), so
-  -- the admin's save never waits on Vercel or GitHub.
+  -- the admin's save never waits on Vercel or GitHub — which is also why
+  -- the generous timeouts below cost nothing. pg_net's 5s default was too
+  -- short in practice: the Vercel hook call timed out with no deploy.
   if vercel_hook_url is not null then
-    perform net.http_post(url := vercel_hook_url);
+    perform net.http_post(url := vercel_hook_url, timeout_milliseconds := 30000);
   end if;
 
   if github_token is not null then
@@ -73,7 +75,8 @@ begin
         'X-GitHub-Api-Version', '2022-11-28',
         'User-Agent', 'dr-sameh-cms',
         'Content-Type', 'application/json'
-      )
+      ),
+      timeout_milliseconds := 30000
     );
   end if;
 
