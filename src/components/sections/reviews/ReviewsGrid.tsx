@@ -8,6 +8,7 @@ import { AmbientGlow } from "@/components/ui/AmbientGlow";
 import { StaggerGroup, StaggerItem } from "@/components/motion/Stagger";
 
 type Review = {
+  id: string;
   name: string;
   category: string;
   rating: number;
@@ -41,7 +42,7 @@ export function ReviewsGrid({
 
         <StaggerGroup className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {items.map((review) => (
-            <StaggerItem key={review.name}>
+            <StaggerItem key={review.id}>
               <GlassCard className="p-8 flex flex-col justify-between h-full">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">

@@ -11,6 +11,7 @@ import { AmbientGlow } from "@/components/ui/AmbientGlow";
 import { FadeIn } from "@/components/motion/FadeIn";
 
 type Review = {
+  id: string;
   name: string;
   rating: number;
   text: string;
@@ -75,7 +76,7 @@ export function TestimonialsSlider({
               className="grid grid-cols-1 md:grid-cols-3 gap-8"
             >
               {groups[index]?.map((review) => (
-                <GlassCard key={review.name} className="p-8 flex flex-col justify-between h-full">
+                <GlassCard key={review.id} className="p-8 flex flex-col justify-between h-full">
                   <div className="space-y-4">
                     <StarRating rating={review.rating} />
                     <p className="text-sm text-brand-800 leading-relaxed font-medium">

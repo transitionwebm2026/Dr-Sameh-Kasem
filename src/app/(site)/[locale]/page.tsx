@@ -142,6 +142,7 @@ export default async function HomePage({
 
   const testimonialsHeading = sectionHeading(locale, sectionByKey("testimonialsSection"));
   const testimonialsItems = reviewRows.map((item) => ({
+    id: item.id,
     name: pickLocale(locale, item.title_en, item.title_ar),
     text: pickLocale(locale, item.text_en, item.text_ar),
     rating: typeof item.meta.rating === "number" ? item.meta.rating : 5,
