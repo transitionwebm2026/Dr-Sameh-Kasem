@@ -23,29 +23,32 @@ export const siteConfig = {
     {
       ar: { name: "مصر الجديدة" },
       en: { name: "Heliopolis" },
+      address: "٦٠ شارع الخليفة المأمون، برج كوين سنتر، الدور السابع، Ultra Health Care",
       mapUrl: "https://maps.app.goo.gl/EMutUAhHwnisxix26",
     },
     {
       ar: { name: "المهندسين" },
       en: { name: "Mohandessin" },
+      address: "برج الحكمة الطبي، ٢٠ شارع البطل أحمد عبد العزيز تقاطع شارع الفريق عبد المنعم رياض، المهندسين",
       mapUrl: "https://maps.app.goo.gl/U96iBpU7vKC9GVhq8",
     },
     {
       ar: { name: "شبرا" },
       en: { name: "Shubra" },
+      address: "١٦ شارع دولتيان، الخلفاوي، شبرا، بجوار مترو الخلفاوي أعلى مركز عيون",
       mapUrl: "https://maps.app.goo.gl/4Y1GMLwbwPTeGbaJ8",
     },
     {
       ar: { name: "العبور" },
       en: { name: "El Obour" },
+      address: "الحي التاسع، O Court Mall، عيادات ميدكير، عيادة G 05",
       mapUrl: "https://maps.app.goo.gl/xhhXT9j3gBJfD85f9",
     },
     {
       ar: { name: "التجمع الخامس" },
       en: { name: "5th Settlement" },
+      address: "Clinic B 203، أوزون ميديكال سنتر، التجمع الخامس",
       mapUrl: "https://maps.app.goo.gl/fKiphTFaq1dJmENk6",
-      mapEmbed:
-        "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13803.0!2d31.4!3d30.02!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzDCsDAxJzEyLjAiTiAzMcKwMjQnMDAuMCJF!5e0!3m2!1sen!2seg!4v1700000000000",
     },
   ],
   workingHours: {
@@ -61,4 +64,12 @@ export function buildWhatsAppLink(message: string, whatsappNumber: string = site
 
 export function buildDirectionsLink(query: string) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
+// A plain text query embed — no API key needed, unlike the "pb=..." embed
+// code Google's own share dialog generates (which has to be copied by hand
+// per location). Good enough for a labeled location preview; it just can't
+// show a precise pin the way a real place/coordinate embed would.
+export function buildMapEmbedUrl(query: string) {
+  return `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`;
 }

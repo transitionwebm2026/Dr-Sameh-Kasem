@@ -11,7 +11,7 @@ import { getSiteSettingsOrDefault } from "@/lib/controllers/siteSettings";
 import { GlobalHeroSection } from "@/components/layout/GlobalHeroSection";
 import { BookingForm } from "@/components/forms/BookingForm";
 import { ClinicInfo } from "@/components/sections/contact/ClinicInfo";
-import { ClinicMap } from "@/components/sections/contact/ClinicMap";
+import { BranchesSection } from "@/components/sections/contact/BranchesSection";
 import { FaqBlock } from "@/components/sections/shared/FaqBlock";
 import { FinalCta } from "@/components/layout/FinalCta";
 
@@ -115,14 +115,12 @@ export default async function ContactPage({
       <section className="py-24 bg-brand-ivory relative" id="booking-form">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-            <div className="h-full flex flex-col gap-6 justify-between">
-              <ClinicInfo locale={locale as "ar" | "en"} />
-              <ClinicMap className="flex-1" />
-            </div>
+            <ClinicInfo locale={locale as "ar" | "en"} />
             <BookingForm whatsappNumber={whatsappNumber} />
           </div>
         </div>
       </section>
+      <BranchesSection locale={locale as "ar" | "en"} />
       <FaqBlock eyebrow={faqHeading.eyebrow} title={faqHeading.title} items={faqItems} />
       <FinalCta {...finalCtaProps(locale, sectionByKey("finalCta"))} />
     </>

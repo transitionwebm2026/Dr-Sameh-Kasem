@@ -1086,6 +1086,11 @@
       "directionsLabel": "Get Directions",
       "mapLabel": "Location on Map"
     },
+    "branches": {
+      "eyebrow": "Our Branches",
+      "title": "Visit Us at Your Nearest Branch",
+      "subtitle": "Three branches across Cairo to make reaching us easier."
+    },
     "faq": {
       "eyebrow": "Frequently Asked Questions",
       "title": "Booking & Contact Questions",
