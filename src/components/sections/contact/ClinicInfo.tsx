@@ -1,8 +1,9 @@
 import { getTranslations } from "next-intl/server";
-import { Phone, Mail } from "lucide-react";
+import { Phone, Mail, Clock } from "lucide-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { FacebookIcon, InstagramIcon, TikTokIcon, WhatsAppIcon } from "@/components/ui/SocialIcons";
 import { getSiteSettingsOrDefault } from "@/lib/controllers/siteSettings";
+import { pickLocale } from "@/lib/cms-render";
 
 export async function ClinicInfo({ locale }: { locale: "ar" | "en" }) {
   const t = await getTranslations({ locale, namespace: "contact.info" });
@@ -10,6 +11,9 @@ export async function ClinicInfo({ locale }: { locale: "ar" | "en" }) {
   const contact = await getSiteSettingsOrDefault();
 
   const hasSocial = contact.facebook_url || contact.instagram_url || contact.tiktok_url;
+  const whatsappDisplay = contact.whatsapp_display || contact.phone_display;
+  const hoursLabel = pickLocale(locale, contact.hours_label_en, contact.hours_label_ar);
+  const hoursText = pickLocale(locale, contact.hours_text_en, contact.hours_text_ar);
 
   return (
     <GlassCard hover={false} className="p-6 sm:p-7 h-full flex flex-col gap-6">
@@ -22,7 +26,7 @@ export async function ClinicInfo({ locale }: { locale: "ar" | "en" }) {
 
       <div className="h-px bg-brand-900/10" />
 
-      <div className="flex-1 space-y-4">
+      <div className="flex-1 flex flex-col justify-center space-y-5">
         <a href={contact.phone_href} className="group flex items-center gap-3.5">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-forest/5 text-brand-gold transition-colors duration-300 group-hover:bg-brand-forest group-hover:text-white">
             <Phone className="h-4 w-4" strokeWidth={1.8} />
@@ -47,7 +51,7 @@ export async function ClinicInfo({ locale }: { locale: "ar" | "en" }) {
           <div>
             <div className="text-xs font-semibold text-brand-700">{common("whatsapp")}</div>
             <div dir="ltr" className="font-bold text-brand-forest">
-              {contact.phone_display}
+              {whatsappDisplay}
             </div>
           </div>
         </a>
@@ -61,6 +65,18 @@ export async function ClinicInfo({ locale }: { locale: "ar" | "en" }) {
             <div className="font-bold text-brand-forest break-all">{contact.email}</div>
           </div>
         </a>
+
+        {hoursText ? (
+          <div className="flex items-center gap-3.5">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-forest/5 text-brand-gold">
+              <Clock className="h-4 w-4" strokeWidth={1.8} />
+            </span>
+            <div>
+              <div className="text-xs font-semibold text-brand-700">{hoursLabel}</div>
+              <div className="font-bold text-brand-forest">{hoursText}</div>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       {hasSocial ? (
