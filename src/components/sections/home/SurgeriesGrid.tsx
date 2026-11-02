@@ -32,10 +32,13 @@ export function SurgeriesGrid({
 
         <StaggerGroup
           once={false}
-          className="mx-auto grid max-w-5xl grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:max-w-none lg:grid-cols-5 gap-4 lg:gap-5 pb-6"
+          className="mx-auto flex max-w-5xl flex-wrap justify-center gap-4 lg:gap-5 pb-6"
         >
           {items.map((item) => (
-            <StaggerItem key={item.title}>
+            <StaggerItem
+              key={item.title}
+              className="w-full sm:w-[calc((100%_-_1rem)/2)] md:w-[calc((100%_-_2rem)/3)] lg:w-[calc((100%_-_2.5rem)/3)]"
+            >
               <LiquidGlassSpecialtyCard
                 title={item.title}
                 description={item.text}
